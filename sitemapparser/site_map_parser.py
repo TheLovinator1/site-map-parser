@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import logging
+from loguru import logger
 
 from .data_helpers import data_to_element, download_uri_data
 from .sitemap_index import SitemapIndex
@@ -16,18 +16,16 @@ class SiteMapParser:
         Args:
             uri: The uri to parse
         """
-        self.logger: logging.Logger = logging.getLogger(__name__)
-
         data: bytes = download_uri_data(uri)
         root_element = data_to_element(data)
 
         self.is_sitemap_index: bool = self._is_sitemap_index_element(root_element)
 
         if self.is_sitemap_index:
-            self.logger.info("Root element is sitemap index")
+            logger.info("Root element is sitemap index")
             self._sitemaps = SitemapIndex(root_element)
         else:
-            self.logger.info("Root element is url set")
+            logger.info("Root element is url set")
             self._url_set = UrlSet(root_element)
 
     @staticmethod
@@ -71,7 +69,7 @@ class SiteMapParser:
         """
         if not self.has_sitemaps():
             error_msg = "Method called when root is not a <sitemapindex>"
-            self.logger.critical(error_msg)
+            logger.critical(error_msg)
             raise KeyError(error_msg)
         return self._sitemaps
 
@@ -89,7 +87,7 @@ class SiteMapParser:
         """
         if not self.has_urls():
             error_msg = "Method called when root is not a <urlset>"
-            self.logger.critical(error_msg)
+            logger.critical(error_msg)
             raise KeyError(error_msg)
         return self._url_set
 

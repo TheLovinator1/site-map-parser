@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import logging
 from io import BytesIO
 
 import requests
+from loguru import logger
 from lxml import etree
-
-# use Bytes throughout because that's how lxml says XML should be used
 
 
 def download_uri_data(uri: str) -> bytes:
@@ -18,7 +16,6 @@ def download_uri_data(uri: str) -> bytes:
     Returns:
         The data from the uri
     """
-    logger: logging.Logger = logging.getLogger(__name__)
     logger.info(f"Requesting data from: {uri}")
 
     # using requests to follow any redirects that happen
@@ -40,7 +37,6 @@ def data_to_element(data: bytes):  # noqa: ANN201
     Returns:
         The lxml element
     """
-    logger: logging.Logger = logging.getLogger(__name__)
     content = BytesIO(data)
     root = None
     try:

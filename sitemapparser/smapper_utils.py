@@ -1,19 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-
-def get_logging_config() -> tuple[str, str]:
-    """Get the logging config file and log file.
-
-    Returns:
-        Tuple of logging config file and log file.
-    """
-    log_config: Path = Path(__file__).parent / "logging_config.ini"
-    log_file: Path = Path.expanduser(Path("~")) / "sitemap_run.log"
-
-    return str(log_config), str(log_file)
-
 
 def uri_modifier(url: str) -> str:
     """Modify the uri to be a valid sitemap.xml url.

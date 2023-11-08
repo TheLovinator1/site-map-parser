@@ -13,7 +13,9 @@ def test_download_uri_data_sitemap_index() -> None:
     with requests_mock.mock() as m:
         smi_data: bytes = Path.open(Path("tests/sitemap_index_data.xml"), "rb").read()
         m.get("http://www.example.com/sitemapindex.xml", content=smi_data)
-        downloaded_data = download_uri_data("http://www.example.com/sitemapindex.xml")
+        downloaded_data: bytes = download_uri_data(
+            "http://www.example.com/sitemapindex.xml",
+        )
         assert downloaded_data == smi_data
 
 
@@ -22,7 +24,9 @@ def test_download_uri_data_urlset() -> None:
     with requests_mock.mock() as m:
         us_data = Path.open(Path("tests/urlset_a.xml"), "rb").read()
         m.get("http://www.example.com/urlset_a.xml", content=us_data)
-        downloaded_data = download_uri_data("http://www.example.com/urlset_a.xml")
+        downloaded_data: bytes = download_uri_data(
+            "http://www.example.com/urlset_a.xml",
+        )
         assert downloaded_data == us_data
 
 

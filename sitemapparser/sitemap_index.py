@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING, Any
+
+from loguru import logger
 
 from sitemapparser.sitemap import Sitemap
 
@@ -31,7 +32,6 @@ class SitemapIndex:
         Returns:
             Sitemap instance
         """
-        logger: logging.Logger = logging.getLogger(__name__)
         sitemap_data: dict = {}
         for ele in sitemap_element:
             name = ele.xpath("local-name()")
@@ -54,9 +54,7 @@ class SitemapIndex:
         Yields:
             Sitemap instance
         """
-        logger: logging.Logger = logging.getLogger(__name__)
-        msg = "Generating sitemaps from {}"
-        logger.debug(msg.format(index_element))
+        logger.debug("Generating sitemaps from {}", index_element)
 
         # handle child elements, <sitemap>
         sitemaps = index_element.findall("./*")

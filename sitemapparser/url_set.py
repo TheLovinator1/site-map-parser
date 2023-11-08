@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import logging
 import typing
+
+from loguru import logger
 
 from .url import Url
 
@@ -41,7 +42,6 @@ class UrlSet:
         Returns:
             Url instance
         """
-        logger: logging.Logger = logging.getLogger(__name__)
         logger.debug(f"urls_from_url_element {url_element}")
         url_data: dict = {}
         for ele in url_element:
@@ -67,7 +67,6 @@ class UrlSet:
         Yields:
             Url instances
         """
-        logger: logging.Logger = logging.getLogger(__name__)
         logger.debug(f"urls_from_url_set_element {url_set_element}")
 
         for url_element in url_set_element:
