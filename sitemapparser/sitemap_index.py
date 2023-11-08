@@ -1,5 +1,6 @@
-from sitemapparser.sitemap import Sitemap
 import logging
+
+from sitemapparser.sitemap import Sitemap
 
 
 class SitemapIndex:
@@ -21,8 +22,8 @@ class SitemapIndex:
         logger = logging.getLogger(__name__)
         sitemap_data = {}
         for ele in sitemap_element:
-            name = ele.xpath('local-name()')
-            value = ele.xpath('text()')[0]
+            name = ele.xpath("local-name()")
+            value = ele.xpath("text()")[0]
             sitemap_data[name] = value
 
         msg = "Returning sitemap object with data: {}"
@@ -45,6 +46,4 @@ class SitemapIndex:
             yield SitemapIndex.sitemap_from_sitemap_element(sm_element)
 
     def __iter__(self):
-        return SitemapIndex.sitemaps_from_sitemap_index_element(
-            self.index_element
-        )
+        return SitemapIndex.sitemaps_from_sitemap_index_element(self.index_element)

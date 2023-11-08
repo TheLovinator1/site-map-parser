@@ -1,7 +1,8 @@
 import logging
-from .data_helpers import download_uri_data, data_to_element
-from .url_set import UrlSet
+
+from .data_helpers import data_to_element, download_uri_data
 from .sitemap_index import SitemapIndex
+from .url_set import UrlSet
 
 
 class SiteMapParser:

@@ -1,9 +1,10 @@
 import logging
+
 from .url import Url
 
 
 class UrlSet:
-    allowed_fields = ['loc', 'lastmod', 'changefreq', 'priority']
+    allowed_fields = ["loc", "lastmod", "changefreq", "priority"]
 
     def __init__(self, urlset_element):
         self.urlset_element = urlset_element
@@ -14,9 +15,9 @@ class UrlSet:
         logger.debug("urls_from_url_element {}".format(url_element))
         url_data = {}
         for ele in url_element:
-            name = ele.xpath('local-name()')
+            name = ele.xpath("local-name()")
             if name in UrlSet.allowed_fields:
-                url_data[name] = ele.xpath('text()')[0]
+                url_data[name] = ele.xpath("text()")[0]
 
         logger.debug("url_data {}".format(url_data))
         return Url(**url_data)

@@ -1,5 +1,6 @@
 import re
 from abc import ABCMeta
+
 from dateutil import parser
 
 
@@ -23,6 +24,6 @@ class BaseData(metaclass=ABCMeta):
     @loc.setter
     def loc(self, value):
         value = str(value)
-        if not re.match('http[s]?://', value):
+        if not re.match("http[s]?://", value):
             raise ValueError("{} does not match a url".format(value))
         self._loc = value

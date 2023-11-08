@@ -1,13 +1,14 @@
 import csv
 import io
-from ..exporter import Exporter
-from ..url import Url
-from ..sitemap import Sitemap
 from datetime import datetime
+
+from ..exporter import Exporter
+from ..sitemap import Sitemap
+from ..url import Url
 
 
 class CSVExporter(Exporter):
-    short_name = 'csv'
+    short_name = "csv"
 
     def export_sitemaps(self):
         """
@@ -20,7 +21,7 @@ class CSVExporter(Exporter):
             buffer,
             delimiter=",",
             fieldnames=Sitemap.fields,
-            quoting=csv.QUOTE_NONNUMERIC
+            quoting=csv.QUOTE_NONNUMERIC,
         )
         writer.writeheader()
         for sm in self.data.get_sitemaps():
@@ -42,10 +43,7 @@ class CSVExporter(Exporter):
         """
         buffer = io.StringIO()
         writer = csv.DictWriter(
-            buffer,
-            delimiter=",",
-            fieldnames=Url.fields,
-            quoting=csv.QUOTE_NONNUMERIC
+            buffer, delimiter=",", fieldnames=Url.fields, quoting=csv.QUOTE_NONNUMERIC
         )
         writer.writeheader()
         for url in self.data.get_urls():

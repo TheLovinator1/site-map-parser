@@ -1,12 +1,13 @@
-from json import dumps
 from datetime import datetime
+from json import dumps
+
 from ..exporter import Exporter
-from ..url import Url
 from ..sitemap import Sitemap
+from ..url import Url
 
 
 class JSONExporter(Exporter):
-    short_name = 'json'
+    short_name = "json"
 
     def _collate(self, fields, row_data):
         dump_data = []

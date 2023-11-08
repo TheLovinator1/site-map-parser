@@ -1,9 +1,10 @@
 from dateutil import parser
+
 from .base_data import BaseData
 
 
 class Sitemap(BaseData):
-    fields = 'loc', 'lastmod'
+    fields = "loc", "lastmod"
 
     def __init__(self, loc, lastmod=None):
         """

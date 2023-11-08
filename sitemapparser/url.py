@@ -2,9 +2,8 @@ from .base_data import BaseData
 
 
 class Url(BaseData):
-    fields = 'loc', 'lastmod', 'changefreq', 'priority'
-    valid_freqs = ('always', 'hourly', 'daily', 'weekly', 'monthly',
-                   'yearly', 'never')
+    fields = "loc", "lastmod", "changefreq", "priority"
+    valid_freqs = ("always", "hourly", "daily", "weekly", "monthly", "yearly", "never")
 
     def __init__(self, loc, lastmod=None, changefreq=None, priority=None):
         """
