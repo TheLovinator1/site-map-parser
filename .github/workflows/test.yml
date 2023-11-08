@@ -1,0 +1,21 @@
+name: Run Pytest
+on:
+    push:
+    pull_request:
+    schedule:
+      - cron: '0 0 * * *' # Run every day
+    workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Test with pytest
+        run: poetry run pytest
