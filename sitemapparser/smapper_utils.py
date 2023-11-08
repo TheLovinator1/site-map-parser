@@ -1,25 +1,29 @@
-import argparse
-import logging
-import os
-from inspect import getmembers, isclass
+from __future__ import annotations
 
-from . import exporters
+from pathlib import Path
 
 
-def get_logging_config():
-    log_config = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "logging_config.ini",
-    )
-    log_file = os.path.join(os.path.expanduser("~"), "sitemap_run.log")
-    return log_config, log_file
+def get_logging_config() -> tuple[str, str]:
+    """Get the logging config file and log file.
+
+    Returns:
+        Tuple of logging config file and log file.
+    """
+    log_config: Path = Path(__file__).parent / "logging_config.ini"
+    log_file: Path = Path.expanduser(Path("~")) / "sitemap_run.log"
+
+    return str(log_config), str(log_file)
 
 
-def get_exporters():
-    return {m[1].short_name: m[1] for m in getmembers(exporters, isclass)}
+def uri_modifier(url: str) -> str:
+    """Modify the uri to be a valid sitemap.xml url.
 
+    Args:
+        url: Url to be modified
 
-def uri_modifier(url):
+    Returns:
+        Modified url
+    """
     if not url.startswith("https://") and not url.startswith("http://"):
         url = "http://" + url
 
@@ -28,36 +32,3 @@ def uri_modifier(url):
             url = url + "/"
         url = url + "sitemap.xml"
     return url
-
-
-def get_args(sys_argv):
-    """:return: (url, log)"""
-    logger = logging.getLogger(__name__)
-    exporter_choices = get_exporters().keys()
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("url", help="Url & path to sitemap.xml")
-    arg_parser.add_argument(
-        "--log",
-        "-l",
-        default="INFO",
-        choices=[
-            "CRITICAL",
-            "ERROR",
-            "WARNING",
-            "INFO",
-            "DEBUG",
-        ],
-    )
-    arg_parser.add_argument(
-        "--exporter",
-        "-e",
-        help="Choose which exporter is to be used, defaults to CSV",
-        default="csv",
-        choices=exporter_choices,
-    )
-
-    logger.debug(f"sys_argv: {sys_argv}")
-    found_args = arg_parser.parse_args(sys_argv)
-    logger.debug(f"Found arguments: {found_args}")
-
-    return (found_args.url, found_args.log, found_args.exporter)

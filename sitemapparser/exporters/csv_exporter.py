@@ -1,19 +1,31 @@
+from __future__ import annotations
+
 import csv
 import io
 from datetime import datetime
 
-from ..exporter import Exporter
-from ..sitemap import Sitemap
-from ..url import Url
+from sitemapparser.exporter import Exporter
+from sitemapparser.sitemap import Sitemap
+from sitemapparser.url import Url
 
 
 class CSVExporter(Exporter):
-    short_name = "csv"
+    """Export site map data to CSV format.
 
-    def export_sitemaps(self):
-        """Returns csv data with format:
-        url: string
-        lastmod: ISO8601 format date
+    Args:
+        Exporter: Base class for all exporters
+
+    Returns:
+        CSV data
+    """
+
+    short_name = "csv"  # type: ignore  # noqa: PGH003
+
+    def export_sitemaps(self: CSVExporter) -> str:
+        """Export site map data to CSV format.
+
+        Returns:
+            CSV data
         """
         buffer = io.StringIO()
         writer = csv.DictWriter(
@@ -23,7 +35,7 @@ class CSVExporter(Exporter):
             quoting=csv.QUOTE_NONNUMERIC,
         )
         writer.writeheader()
-        for sm in self.data.get_sitemaps():
+        for sm in self.data.get_sitemaps():  # type: ignore  # noqa: PGH003
             row = {}
             for field in Sitemap.fields:
                 v = getattr(sm, field)
@@ -32,12 +44,17 @@ class CSVExporter(Exporter):
 
         return buffer.getvalue().rstrip()
 
-    def export_urls(self):
-        """Returns csv data with format:
-        url: string
-        lastmod: ISO8601 format date
-        changefreq: string
-        priority: float, 0-1
+    def export_urls(self: CSVExporter) -> str:
+        """Export site map data to CSV format.
+
+        Returns csv data with format:
+            url: string
+            lastmod: ISO8601 format date
+            changefreq: string
+            priority: float, 0-1
+
+        Returns:
+            CSV data
         """
         buffer = io.StringIO()
         writer = csv.DictWriter(
@@ -47,7 +64,7 @@ class CSVExporter(Exporter):
             quoting=csv.QUOTE_NONNUMERIC,
         )
         writer.writeheader()
-        for url in self.data.get_urls():
+        for url in self.data.get_urls():  # type: ignore  # noqa: PGH003
             row = {}
             for field in Url.fields:
                 v = getattr(url, field)

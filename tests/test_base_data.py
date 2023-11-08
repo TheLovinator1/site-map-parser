@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 import pytest
@@ -6,7 +8,10 @@ from sitemapparser.base_data import BaseData
 
 
 class TestBaseData:
-    def test_lastmod_value_correct(self):
+    """Test BaseData class."""
+
+    def test_lastmod_value_correct(self: TestBaseData) -> None:
+        """Test lastmod value."""
         s1 = BaseData()
         s1.lastmod = "2019-12-01T01:33:35+00:00"
 
@@ -17,13 +22,15 @@ class TestBaseData:
         assert type(s2.lastmod) is datetime
         assert str(s2.lastmod) == "2019-11-11 00:00:00"
 
-    def test_lastmod_value_incorrect(self):
+    def test_lastmod_value_incorrect(self: TestBaseData) -> None:
+        """Test lastmod value."""
         s1 = BaseData()
         # tests invalid month value
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             s1.lastmod = "2019-13-01T01:33:35+00:00"
 
-    def test_loc_value_correct(self):
+    def test_loc_value_correct(self: TestBaseData) -> None:
+        """Test loc value."""
         s1 = BaseData()
         s2 = BaseData()
         s1.loc = "http://www.example.com"
@@ -32,7 +39,8 @@ class TestBaseData:
         assert s1.loc == "http://www.example.com"
         assert s2.loc == "https://www.example.com/file.xml"
 
-    def test_loc_value_incorrect(self):
+    def test_loc_value_incorrect(self: TestBaseData) -> None:
+        """Test loc value."""
         s = BaseData()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             s.loc = "www.example.com"

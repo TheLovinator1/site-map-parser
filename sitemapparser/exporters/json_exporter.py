@@ -1,15 +1,26 @@
+from __future__ import annotations
+
 from datetime import datetime
 from json import dumps
 
-from ..exporter import Exporter
-from ..sitemap import Sitemap
-from ..url import Url
+from sitemapparser.exporter import Exporter
+from sitemapparser.sitemap import Sitemap
+from sitemapparser.url import Url
 
 
 class JSONExporter(Exporter):
-    short_name = "json"
+    """Export site map data to JSON format.
 
-    def _collate(self, fields, row_data):
+    Args:
+        Exporter: Base class for all exporters
+
+    Returns:
+        JSON data
+    """
+
+    short_name = "json"  # type: ignore  # noqa: PGH003
+
+    def _collate(self: JSONExporter, fields: tuple, row_data: list) -> list:  # noqa: PLR6301
         dump_data = []
         for sm in row_data:
             row = {}
@@ -19,8 +30,18 @@ class JSONExporter(Exporter):
             dump_data.append(row)
         return dump_data
 
-    def export_sitemaps(self):
-        return dumps(self._collate(Sitemap.fields, self.data.get_sitemaps()))
+    def export_sitemaps(self: JSONExporter) -> str:
+        """Export site map data to JSON format.
 
-    def export_urls(self):
-        return dumps(self._collate(Url.fields, self.data.get_urls()))
+        Returns:
+            JSON data
+        """
+        return dumps(self._collate(Sitemap.fields, self.data.get_sitemaps()))  # type: ignore  # noqa: PGH003
+
+    def export_urls(self: JSONExporter) -> str:
+        """Export site map data to JSON format.
+
+        Returns:
+            JSON data
+        """
+        return dumps(self._collate(Url.fields, self.data.get_urls()))  # type: ignore  # noqa: PGH003
