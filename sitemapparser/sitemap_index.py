@@ -5,8 +5,7 @@ from sitemapparser.sitemap import Sitemap
 
 class SitemapIndex:
     def __init__(self, index_element):
-        """
-        Creates a 'sitemaps' property, an iterator for children of an
+        """Creates a 'sitemaps' property, an iterator for children of an
         lxml <sitemapindex> representation
         :param index_element: lxml 'sitemapindex' element
         """
@@ -14,8 +13,7 @@ class SitemapIndex:
 
     @staticmethod
     def sitemap_from_sitemap_element(sitemap_element):
-        """
-        Creates a Sitemap instance for each sitemap element passed
+        """Creates a Sitemap instance for each sitemap element passed
         :param sitemap_element: lxml representation of a <sitemap> element
         :return: Sitemap instance
         """
@@ -32,8 +30,7 @@ class SitemapIndex:
 
     @staticmethod
     def sitemaps_from_sitemap_index_element(index_element):
-        """
-        Iterator to return the sitemaps from a lxml <sitemapindex> element
+        """Iterator to return the sitemaps from a lxml <sitemapindex> element
         :param index_element: lxml representation of a <sitemapindex> element
         :return: iter(Sitemap) instances
         """

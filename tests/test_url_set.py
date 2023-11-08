@@ -1,8 +1,6 @@
 from datetime import datetime
 from io import BytesIO
-from unittest.mock import MagicMock
 
-import pytest
 from lxml import etree
 
 from sitemapparser.url import Url
@@ -14,7 +12,8 @@ class TestUrlSet:
         url_set_data_bytes = open("tests/urlset_a.xml", "rb").read()
         utf8_parser = etree.XMLParser(encoding="utf-8")
         self.url_set_data_xml = etree.parse(
-            BytesIO(url_set_data_bytes), parser=utf8_parser
+            BytesIO(url_set_data_bytes),
+            parser=utf8_parser,
         )
         self.url_set_element = self.url_set_data_xml.getroot()
         self.url_element_1 = self.url_set_data_xml.getroot()[0]
@@ -24,7 +23,8 @@ class TestUrlSet:
         custom_ele_file = "tests/urlset_a_custom_element.xml"
         url_set_custom_ele_bytes = open(custom_ele_file, "rb").read()
         self.url_set_data_custom_xml = etree.parse(
-            BytesIO(url_set_custom_ele_bytes), parser=utf8_parser
+            BytesIO(url_set_custom_ele_bytes),
+            parser=utf8_parser,
         )
         self.url_set_custom_element = self.url_set_data_custom_xml.getroot()
         self.url_element_3 = self.url_set_data_custom_xml.getroot()[0]

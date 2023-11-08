@@ -8,34 +8,30 @@ from lxml import etree
 
 
 def download_uri_data(uri):
-    """
-    returns file object
-    """
+    """Returns file object"""
     logger = logging.getLogger(__name__)
-    logger.info("Requesting data from: {}".format(uri))
+    logger.info(f"Requesting data from: {uri}")
     # using requests to follow any redirects that happen
     headers = {"Content-Type": "application/xml;charset=utf-8"}
     r = requests.get(uri, headers=headers)
     # ensure it's the decompressed content
     r.raw.decode_content = True
-    logger.debug("Request content: {}".format(r.content))
+    logger.debug(f"Request content: {r.content}")
     return r.content
 
 
 def data_to_element(data):
-    """
-    data parameter should be bytes
-    """
+    """Data parameter should be bytes"""
     logger = logging.getLogger(__name__)
     content = BytesIO(data)
     root = None
     try:
         utf8_parser = etree.XMLParser(encoding="utf-8")
         downloaded_xml = etree.parse(content, parser=utf8_parser)
-        logger.debug("Downloaded: {}".format(downloaded_xml))
+        logger.debug(f"Downloaded: {downloaded_xml}")
         root = downloaded_xml.getroot()
-        logger.debug("Downloaded root {}".format(root))
+        logger.debug(f"Downloaded root {root}")
     except SyntaxError as err:
-        logger.warning("Parsing failed {}".format(err))
+        logger.warning(f"Parsing failed {err}")
         raise err
     return root

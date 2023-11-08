@@ -14,14 +14,15 @@ class TestExporter:
                 Sitemap("http://www.example1.com"),
                 Sitemap("http://www.example2.com", "2010-10-01T18:32:17+00:00"),
                 Sitemap(
-                    "http://www.example3.com/sitemap.xml", "2010-10-01T18:32:17+00:00"
+                    "http://www.example3.com/sitemap.xml",
+                    "2010-10-01T18:32:17+00:00",
                 ),
-            ]
+            ],
         )
         csv_exporter = CSVExporter(mock_site_mapper)
         csv_data = csv_exporter.export_sitemaps()
         csv_data_parsed = list(
-            csv.DictReader(csv_data.split("\r\n"), quoting=csv.QUOTE_NONNUMERIC)
+            csv.DictReader(csv_data.split("\r\n"), quoting=csv.QUOTE_NONNUMERIC),
         )
 
         assert csv_data_parsed[0]["loc"] == "http://www.example1.com"
@@ -39,12 +40,12 @@ class TestExporter:
                 Url("http://www.example.com/page/a/2", "2006-07-08", "monthly", "0.8"),
                 Url("http://www.example.com/page/a/3", "2007-09-10", "monthly", "0.9"),
                 Url("http://www.example.com/page/a/4", "2008-11-12", "monthly", "1.0"),
-            ]
+            ],
         )
         csv_exporter = CSVExporter(mock_url_set)
         csv_data = csv_exporter.export_urls()
         csv_data_parsed = list(
-            csv.DictReader(csv_data.split("\r\n"), quoting=csv.QUOTE_NONNUMERIC)
+            csv.DictReader(csv_data.split("\r\n"), quoting=csv.QUOTE_NONNUMERIC),
         )
 
         assert csv_data_parsed[0]["loc"] == "http://www.example.com/page/a/1"

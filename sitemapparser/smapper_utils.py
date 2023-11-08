@@ -8,7 +8,8 @@ from . import exporters
 
 def get_logging_config():
     log_config = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "logging_config.ini"
+        os.path.dirname(os.path.abspath(__file__)),
+        "logging_config.ini",
     )
     log_file = os.path.join(os.path.expanduser("~"), "sitemap_run.log")
     return log_config, log_file
@@ -30,9 +31,7 @@ def uri_modifier(url):
 
 
 def get_args(sys_argv):
-    """
-    :return: (url, log)
-    """
+    """:return: (url, log)"""
     logger = logging.getLogger(__name__)
     exporter_choices = get_exporters().keys()
     arg_parser = argparse.ArgumentParser()
@@ -57,8 +56,8 @@ def get_args(sys_argv):
         choices=exporter_choices,
     )
 
-    logger.debug("sys_argv: {}".format(sys_argv))
+    logger.debug(f"sys_argv: {sys_argv}")
     found_args = arg_parser.parse_args(sys_argv)
-    logger.debug("Found arguments: {}".format(found_args))
+    logger.debug(f"Found arguments: {found_args}")
 
     return (found_args.url, found_args.log, found_args.exporter)

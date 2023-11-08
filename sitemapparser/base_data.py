@@ -25,5 +25,5 @@ class BaseData(metaclass=ABCMeta):
     def loc(self, value):
         value = str(value)
         if not re.match("http[s]?://", value):
-            raise ValueError("{} does not match a url".format(value))
+            raise ValueError(f"{value} does not match a url")
         self._loc = value

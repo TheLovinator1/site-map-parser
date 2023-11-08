@@ -1,10 +1,11 @@
-import setuptools
 from os import sys
 
-needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
-pytest_runner = ['pytest-runner'] if needs_pytest else []
+import setuptools
 
-with open('README.md') as readme:
+needs_pytest = {"pytest", "test", "ptr"}.intersection(sys.argv)
+pytest_runner = ["pytest-runner"] if needs_pytest else []
+
+with open("README.md") as readme:
     long_description = readme.read()
 
 setuptools.setup(
@@ -27,20 +28,21 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    scripts=['smapper'],
+    scripts=["smapper"],
     include_package_data=True,
     package_data={
-        '': ['*.ini'],
+        "": ["*.ini"],
     },
-    python_requires='>=3.6',
+    python_requires=">=3.6",
     tests_require=["pytest"],
     setup_requires=[
         "setuptools>=57.1.0",
         "twine>=3.4.1",
-    ] + pytest_runner,
-    install_requires=[
-        'lxml',
-        'requests',
-        'python-dateutil',
     ]
+    + pytest_runner,
+    install_requires=[
+        "lxml",
+        "requests",
+        "python-dateutil",
+    ],
 )

@@ -1,7 +1,6 @@
 from datetime import datetime
 from io import BytesIO
 
-import pytest
 from lxml import etree
 
 from sitemapparser.sitemap import Sitemap
@@ -13,7 +12,8 @@ class TestSitemapIndex:
         sitemap_index_data = open("tests/sitemap_index_data.xml", "rb").read()
         utf8_parser = etree.XMLParser(encoding="utf-8")
         self.sitemap_index_xml_root = etree.parse(
-            BytesIO(sitemap_index_data), parser=utf8_parser
+            BytesIO(sitemap_index_data),
+            parser=utf8_parser,
         ).getroot()
         self.sitemap_index_element_xml = self.sitemap_index_xml_root[0]
 
@@ -26,7 +26,7 @@ class TestSitemapIndex:
 
     def test_sitemaps_from_sitemap_index_element(self):
         si = SitemapIndex.sitemaps_from_sitemap_index_element(
-            self.sitemap_index_xml_root
+            self.sitemap_index_xml_root,
         )
         assert len(list(si)) == 2
 

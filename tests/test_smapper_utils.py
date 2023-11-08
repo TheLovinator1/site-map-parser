@@ -1,6 +1,4 @@
-import argparse
 import os
-from unittest.mock import MagicMock
 
 from sitemapparser.smapper_utils import (
     get_args,

@@ -14,9 +14,10 @@ class TestExporter:
                 Sitemap("http://www.example1.com"),
                 Sitemap("http://www.example2.com", "2010-10-01T18:32:17+00:00"),
                 Sitemap(
-                    "http://www.example3.com/sitemap.xml", "2010-10-01T18:32:17+00:00"
+                    "http://www.example3.com/sitemap.xml",
+                    "2010-10-01T18:32:17+00:00",
                 ),
-            ]
+            ],
         )
         json_exporter = JSONExporter(mock_site_mapper)
         json_data = json_exporter.export_sitemaps()
@@ -57,7 +58,7 @@ class TestExporter:
                     "monthly",
                     "1.0",
                 ),
-            ]
+            ],
         )
         json_exporter = JSONExporter(mock_url_set)
         json_data = json_exporter.export_urls()

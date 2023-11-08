@@ -1,7 +1,4 @@
-from unittest.mock import Mock
-
 import pytest
-import requests
 import requests_mock
 
 from sitemapparser.data_helpers import data_to_element, download_uri_data

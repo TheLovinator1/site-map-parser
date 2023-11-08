@@ -7,8 +7,7 @@ from .url_set import UrlSet
 
 class SiteMapParser:
     def __init__(self, uri):
-        """
-        Parses and creates sitemap or url instances for the data retrieved
+        """Parses and creates sitemap or url instances for the data retrieved
 
         :param uri: String, uri of the sitemap.xml you want analysed
         """
@@ -35,8 +34,7 @@ class SiteMapParser:
         return bool(len(element.xpath("/*[local-name()='urlset']")))
 
     def get_sitemaps(self):
-        """
-        Retrieve the sitemaps. Can check if 'has_sitemaps()' returns True to
+        """Retrieve the sitemaps. Can check if 'has_sitemaps()' returns True to
         determine if this should be used without calling it
 
         :return: iter(Sitemap)
@@ -48,8 +46,7 @@ class SiteMapParser:
         return self._sitemaps
 
     def get_urls(self):
-        """
-        Retrieve the urls. Can check if 'has_urls()' returns True to determine
+        """Retrieve the urls. Can check if 'has_urls()' returns True to determine
         if this should be used without actually calling it.
 
         :return: iter(Url)
@@ -61,16 +58,14 @@ class SiteMapParser:
         return self._url_set
 
     def has_sitemaps(self):
-        """
-        Determine if the URL's data contained sitemaps
+        """Determine if the URL's data contained sitemaps
 
         :return: Boolean
         """
         return self.is_sitemap_index
 
     def has_urls(self):
-        """
-        Determine if the URL's data contained urls
+        """Determine if the URL's data contained urls
 
         :return: Boolean
         """

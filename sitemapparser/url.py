@@ -6,8 +6,7 @@ class Url(BaseData):
     valid_freqs = ("always", "hourly", "daily", "weekly", "monthly", "yearly", "never")
 
     def __init__(self, loc, lastmod=None, changefreq=None, priority=None):
-        """
-        Representation of the <url> element
+        """Representation of the <url> element
         :param loc: String, URL of the page.
         :param lastmod: DateTime, The date of last modification of the file.
         :param changefreq: String, How frequently the page is likely to change.

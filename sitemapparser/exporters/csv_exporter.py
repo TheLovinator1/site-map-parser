@@ -11,8 +11,7 @@ class CSVExporter(Exporter):
     short_name = "csv"
 
     def export_sitemaps(self):
-        """
-        returns csv data with format:
+        """Returns csv data with format:
         url: string
         lastmod: ISO8601 format date
         """
@@ -34,8 +33,7 @@ class CSVExporter(Exporter):
         return buffer.getvalue().rstrip()
 
     def export_urls(self):
-        """
-        returns csv data with format:
+        """Returns csv data with format:
         url: string
         lastmod: ISO8601 format date
         changefreq: string
@@ -43,7 +41,10 @@ class CSVExporter(Exporter):
         """
         buffer = io.StringIO()
         writer = csv.DictWriter(
-            buffer, delimiter=",", fieldnames=Url.fields, quoting=csv.QUOTE_NONNUMERIC
+            buffer,
+            delimiter=",",
+            fieldnames=Url.fields,
+            quoting=csv.QUOTE_NONNUMERIC,
         )
         writer.writeheader()
         for url in self.data.get_urls():
