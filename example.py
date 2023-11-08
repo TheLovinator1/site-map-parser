@@ -21,7 +21,7 @@ def main() -> None:
         urls: UrlSet = sm.get_urls()
         logger.info(f"{urls=}")
 
-    csv_exporter = CSVExporter(sm)  # type: ignore  # noqa: PGH003
+    csv_exporter = CSVExporter(sm)
     if sm.has_sitemaps():
         sitemaps_csv: str = csv_exporter.export_sitemaps()
         logger.info(f"{sitemaps_csv=}")
@@ -30,7 +30,7 @@ def main() -> None:
         urls_csv: str = csv_exporter.export_urls()
         logger.info(f"{urls_csv=}")
 
-    json_exporter = JSONExporter(sm)  # type: ignore  # noqa: PGH003
+    json_exporter = JSONExporter(sm)
     if sm.has_sitemaps():
         sitemaps_json: str = json_exporter.export_sitemaps()
         logger.info(f"{sitemaps_json=}")

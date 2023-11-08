@@ -4,19 +4,19 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sitemapparser.base_data import BaseData
+    from sitemapparser.site_map_parser import SiteMapParser
 
 
 class Exporter(metaclass=ABCMeta):
     """Base class for all exporters."""
 
-    def __init__(self: Exporter, data: BaseData) -> None:
+    def __init__(self: Exporter, data: SiteMapParser) -> None:
         """Constructor for Exporter.
 
         Args:
             data: The data to export
         """
-        self.data: BaseData = data
+        self.data: SiteMapParser = data
 
     @abstractproperty
     def short_name(self: Exporter):  # noqa: ANN201
