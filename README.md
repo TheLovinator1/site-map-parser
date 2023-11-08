@@ -2,11 +2,11 @@
 
 Script and library which reads urls and converts to objects, allows exporting as CSV or JSON.
 
-Handle sitemaps according to: https://www.sitemaps.org/protocol.html
-   
+Handle sitemaps according to: <https://www.sitemaps.org/protocol.html>
+
 ## Installation
 
-```
+```sh
 pip install site-map-parser
 ```
 
@@ -14,7 +14,7 @@ pip install site-map-parser
 
 ### Script usage
 
-```
+```sh
 smapper $url > /tmp/data.csv
 ```
 
@@ -22,8 +22,8 @@ Logs written to ~/sitemap_run.log
 
 #### Arguments
 
-| Argument | Options| Default  |  Information| 
-| ----------- | ----------- | ----------- | -----------| 
+| Argument | Options| Default  |  Information|
+| ----------- | ----------- | ----------- | -----------|
 | -h | N/A | N/A | Outputs argument data |
 | url | e.g. `http://www.example.com` - `http://www.example.com/other_sitemap.xml` | N/A | Required - sitemap data to retrieve |
 | -l, --log | `CRITICAL` or `ERROR` or `WARNING` or `INFO` or `DEBUG` | `INFO` | logs to sitemapper_run.log in install folder |
