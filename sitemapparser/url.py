@@ -101,9 +101,13 @@ class Url(BaseData):
     def priority(self: Url, priority: float | None) -> None:
         if priority is not None:
             priority = float(priority)
-            if priority < 0.0 or priority > 1.0:  # noqa: PLR2004
+
+            min_value = 0.0
+            max_value = 1.0
+            if priority < min_value or priority > max_value:
                 msg = "'{}' is not between 0.0 and 1.0"
                 raise ValueError(msg)
+
         self._priority: float | None = priority
 
     def __str__(self: Url) -> str:

@@ -51,6 +51,7 @@ class TestSitemapIndex:
         Args:
             self: TestSitemapIndex
         """
+        amount_of_sitemaps: int = len(self.sitemap_index_xml_root)
         si: Generator[
             Sitemap,
             Any,
@@ -58,7 +59,7 @@ class TestSitemapIndex:
         ] = SitemapIndex.sitemaps_from_sitemap_index_element(
             self.sitemap_index_xml_root,
         )
-        assert len(list(si)) == 2  # noqa: PLR2004
+        assert len(list(si)) == amount_of_sitemaps
 
     def test_init(self: TestSitemapIndex) -> None:
         """Test init.
@@ -66,5 +67,6 @@ class TestSitemapIndex:
         Args:
             self: TestSitemapIndex
         """
+        amount_of_sitemaps: int = len(self.sitemap_index_xml_root)
         smi = SitemapIndex(self.sitemap_index_xml_root)
-        assert len(list(smi)) == 2  # noqa: PLR2004
+        assert len(list(smi)) == amount_of_sitemaps

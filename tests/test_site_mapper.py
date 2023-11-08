@@ -82,6 +82,8 @@ class TestSiteMapper:
         Args:
             self: TestSiteMapper
         """
+        amount_of_sitemaps: int = len(self.sitemap_index_xml_root)
+
         with requests_mock.mock() as m:
             smi_data: bytes = Path.open(
                 Path("tests/sitemap_index_data.xml"),
@@ -90,7 +92,7 @@ class TestSiteMapper:
             m.get("http://www.sitemap-example.com", content=smi_data)
             sm = SiteMapParser("http://www.sitemap-example.com")
             site_maps: SitemapIndex = sm.get_sitemaps()
-            assert len(list(site_maps)) == 2  # noqa: PLR2004
+            assert len(list(site_maps)) == amount_of_sitemaps
 
     def test_get_sitemaps_inappropriate_call(self: TestSiteMapper) -> None:
         """Test get_sitemaps inappropriate call.
@@ -111,12 +113,14 @@ class TestSiteMapper:
         Args:
             self: TestSiteMapper
         """
+        amount_of_urls: int = len(self.url_set_element)
+
         with requests_mock.mock() as m:
             us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
             m.get("http://www.url-example.com", content=us_data)
             sm = SiteMapParser("http://www.url-example.com")
             url_set: UrlSet = sm.get_urls()
-            assert len(list(url_set)) == 3  # noqa: PLR2004
+            assert len(list(url_set)) == amount_of_urls
 
     def test_get_urls_inappropriate_call(self: TestSiteMapper) -> None:
         """Test get_urls inappropriate call.

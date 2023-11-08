@@ -50,13 +50,14 @@ class TestUrlSet:
         Args:
             self: TestUrlSet
         """
+        priority = 0.8
         url: Url = UrlSet.url_from_url_element(self.url_element_1)
         assert isinstance(url, Url)
         assert url.loc == "http://www.example.com/page/a/1"
         assert type(url.lastmod) is datetime
         assert str(url.lastmod) == "2005-01-01 00:00:00"
         assert url.changefreq == "monthly"
-        assert url.priority == 0.8  # noqa: PLR2004
+        assert url.priority == priority
 
     def test_url_from_custom_url_element(self: TestUrlSet) -> None:
         """Test url_from_url_element.
@@ -64,13 +65,14 @@ class TestUrlSet:
         Args:
             self: TestUrlSet
         """
+        priority = 0.3
         url: Url = UrlSet.url_from_url_element(self.url_element_3)
         assert isinstance(url, Url)
         assert url.loc == "http://www.example.com/page/a/4"
         assert type(url.lastmod) is datetime
         assert str(url.lastmod) == "2006-05-05 00:00:00"
         assert url.changefreq == "monthly"
-        assert url.priority == 0.3  # noqa: PLR2004
+        assert url.priority == priority
 
     def test_urls_from_url_set_element(self: TestUrlSet) -> None:
         """Test urls_from_url_set_element.
@@ -78,10 +80,11 @@ class TestUrlSet:
         Args:
             self: TestUrlSet
         """
+        amount_of_urls: int = len(self.url_set_element)
         urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(
             self.url_set_element,
         )
-        assert len(list(urls)) == 3  # noqa: PLR2004
+        assert len(list(urls)) == amount_of_urls
 
     def test_urls_from_url_set_custom_element(self: TestUrlSet) -> None:
         """Test urls_from_url_set_element.
@@ -100,5 +103,6 @@ class TestUrlSet:
         Args:
             self: TestUrlSet
         """
+        amount_of_urls: int = len(self.url_set_element)
         u = UrlSet(self.url_set_element)
-        assert len(list(u)) == 3  # noqa: PLR2004
+        assert len(list(u)) == amount_of_urls

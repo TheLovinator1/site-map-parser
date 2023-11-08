@@ -16,18 +16,20 @@ class TestUrl:
         Args:
             self: TestUrl
         """
+        priority = 0.3
+
         u = Url(
             loc="http://www.example2.com/index2.html",
             lastmod="2010-11-04T17:21:18+00:00",
             changefreq="never",
-            priority=0.3,
+            priority=priority,
         )
         assert u.loc == "http://www.example2.com/index2.html"
         assert type(u.lastmod) is datetime
         assert str(u.lastmod) == "2010-11-04 17:21:18+00:00"
         assert u.changefreq == "never"
         assert type(u.priority) is float
-        assert u.priority == 0.3  # noqa: PLR2004
+        assert u.priority == priority
 
     def test_changefreq(self: TestUrl) -> None:
         """Test changefreq.
@@ -61,19 +63,24 @@ class TestUrl:
         Args:
             self: TestUrl
         """
-        u = Url(loc="http://www.example/com/index.html", priority=0.6)
-        assert u.priority == 0.6  # noqa: PLR2004
-        u.priority = 0.3
-        assert u.priority == 0.3  # noqa: PLR2004
-        u.priority = 0.0
-        assert u.priority == 0.0  # noqa: PLR2004
-        u.priority = 1.0
-        assert u.priority == 1.0  # noqa: PLR2004
+        priority06 = 0.6
+        priority03 = 0.3
+        priority00 = 0.0
+        priority10 = 1.0
+
+        u = Url(loc="http://www.example/com/index.html", priority=priority06)
+        assert u.priority == priority06
+        u.priority = priority03
+        assert u.priority == priority03
+        u.priority = priority00
+        assert u.priority == priority00
+        u.priority = priority10
+        assert u.priority == priority10
 
         with pytest.raises(ValueError):  # noqa: PT011
-            u.priority = 1.1
+            u.priority = 1.1  # Max is 1.0
         with pytest.raises(ValueError):  # noqa: PT011
-            u.priority = -0.1
+            u.priority = -0.1  # Min is 0.0
 
     def test_str(self: TestUrl) -> None:
         """Test str.
