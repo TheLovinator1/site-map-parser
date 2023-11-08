@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from sitemapparser.exporters.json_exporter import JSONExporter
+from sitemapparser.exporter import JSONExporter
 from sitemapparser.sitemap import Sitemap
 from sitemapparser.url import Url
 

@@ -1,7 +1,7 @@
 import json
 from typing import TYPE_CHECKING
 
-from sitemapparser.exporters.json_exporter import JSONExporter
+from sitemapparser.exporter import JSONExporter
 from sitemapparser.site_map_parser import SiteMapParser
 
 if TYPE_CHECKING:
