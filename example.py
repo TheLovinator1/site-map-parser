@@ -22,63 +22,38 @@ def get_sitemaps() -> None:
     if sm.has_sitemaps():
         # This will alway be true because the sitemap at https://www.webhallen.com/sitemap.xml has other sitemaps inside it. # noqa: E501
 
-        # Get the sitemaps inside the sitemap at https://www.webhallen.com/sitemap.xml
         sitemaps: SitemapIndex = sm.get_sitemaps()
-        logger.info("Sitemaps:")
+        logger.info("get_sitemaps():")
         for sitemap in sitemaps:
             logger.info(f"\t{sitemap=}")
-            # sitemap will be like this:
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.home.xml>
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.section.xml>
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.category.xml>
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.campaign.xml>
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.campaignList.xml>
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.infoPages.xml>
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.product.xml>
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.manufacturer.xml>
-            # sitemap=<Sitemap https://www.webhallen.com/sitemap.article.xml>
+            """
+            get_sitemaps():
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.home.xml>
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.section.xml>
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.category.xml>
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.campaign.xml>
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.campaignList.xml>
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.infoPages.xml>
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.product.xml>
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.manufacturer.xml>
+                sitemap=<Sitemap https://www.webhallen.com/sitemap.article.xml>
+            """
 
 
 def get_urls() -> None:
     """Get the urls from a sitemap."""
     sm = SiteMapParser("https://www.webhallen.com/sitemap.article.xml")
     urls: UrlSet = sm.get_urls()
+    logger.info("get_urls():")
     for url in urls:
-        logger.info(f"{url=}")
+        logger.info(f"\t{url=}")
         # Result:
-        """url=Url(loc='https://panso.se/', lastmod=datetime.datetime(2023, 11, 8, 0, 0), changefreq='daily', priority=0.5)"""  # noqa: E501
-
-    json_exporter = JSONExporter(sm)
-    if sm.has_sitemaps():
-        sitemaps_json: str = json_exporter.export_sitemaps()
-        logger.info(f"{sitemaps_json=}")
-
-    elif sm.has_urls():
-        urls_json: str = json_exporter.export_urls()
-        logger.info(f"{urls_json=}")
-
-        # Result:
-        """urls_json = [
-                {
-                    "loc": "https://panso.se/",
-                    "lastmod": "2023-11-08T00:00:00",
-                    "changefreq": "daily",
-                    "priority": 0.5,
-                },
-                {
-                    "loc": "https://panso.se/webhallen/",
-                    "lastmod": "2023-11-08T00:00:00",
-                    "changefreq": "daily",
-                    "priority": 0.5,
-                },
-                {
-                    "loc": "https://panso.se/api/docs",
-                    "lastmod": null,
-                    "changefreq": "daily",
-                    "priority": 0.5,
-                },
-            ]
         """
+        url=Url(loc=https://www.webhallen.com/se/article/2-Covid-19-Butiksatgarder, lastmod=None, changefreq=None, priority=0.3)
+        url=Url(loc=https://www.webhallen.com/se/article/4-Tre-enkla-steg-for-ett-smart-hem, lastmod=None, changefreq=None, priority=0.3)
+        url=Url(loc=https://www.webhallen.com/se/article/5-Bast-laptop-for-varterminen-2021, lastmod=None, changefreq=None, priority=0.3)
+        ... truncated ...
+        """  # noqa: E501
 
 
 def get_json() -> None:
