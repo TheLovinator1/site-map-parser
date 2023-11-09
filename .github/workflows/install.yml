@@ -7,20 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  install_poetry:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-      - run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - run: poetry new -vvv test-project
-      - run: cd /home/runner/work/sitemap-parser/sitemap-parser/test-project/test_project
-      - run: poetry add -vvv git+https://github.com/TheLovinator1/sitemap-parser.git
-      - run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
-      - run: poetry run -vvv python example.py
   install_pip:
     runs-on: ubuntu-latest
     steps:
