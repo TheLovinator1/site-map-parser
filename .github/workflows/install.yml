@@ -10,38 +10,26 @@ jobs:
   install_poetry:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: 3.12
-      - name: Install Poetry
-        run: |
+      - run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - name: Create new Poetry project
-        run: poetry new test_project
-      - name: Change directory to test_project
-        run: cd test_project
-      - name: Install dependencies
-        run: poetry add git+https://github.com/TheLovinator1/sitemap-parser.git
-      - name: Download example.py
-        run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
-      - name: Run example.py
-        run: poetry run python example.py
+      - run: poetry new test_project
+      - run: cd test_project
+      - run: ls -lha
+      - run: poetry add git+https://github.com/TheLovinator1/sitemap-parser.git
+      - run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
+      - run: poetry run python example.py
   install_pip:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: 3.12
-      - name: Create new Python project
-        run: python3 -m venv .venv
-      - name: Activate virtual environment
-        run: source .venv/bin/activate
-      - name: Install dependencies
-        run: pip install git+https://github.com/TheLovinator1/sitemap-parser.git
-      - name: Download example.py
-        run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
-      - name: Run example.py
-        run: python3 example.py
+      - run: python3 -m venv .venv
+      - run: source .venv/bin/activate
+      - run: pip install git+https://github.com/TheLovinator1/sitemap-parser.git
+      - run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
+      - run: python3 example.py
