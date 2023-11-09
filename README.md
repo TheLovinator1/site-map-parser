@@ -1,7 +1,7 @@
 # Sitemap Parser
 
 <p align="center">
-  <img src="https://github.com/thelovinator1/sitemap-parser/blob/master/logo.png?raw=true" title="Robot searching for sitemaps" alt="Robot searching for sitemaps" width="300" height="300" />
+  <img src="https://github.com/thelovinator1/sitemap-parser/blob/master/.github/logo.png?raw=true" title="Robot searching for sitemaps" alt="Robot searching for sitemaps" width="300" height="300" />
 </p>
 
 This Python library is designed to scrape sitemaps from websites, providing a simple and efficient way to gather information about the structure of a website.
