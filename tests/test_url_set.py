@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class TestUrlSet:
     """Test the UrlSet class."""
 
-    def setup(self: TestUrlSet) -> None:
+    def setup_method(self: TestUrlSet) -> None:
         """Setup for TestUrlSet."""
         url_set_data_bytes: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
         utf8_parser = etree.XMLParser(encoding="utf-8")

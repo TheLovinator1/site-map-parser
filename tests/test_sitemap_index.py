@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class TestSitemapIndex:
     """Test the SitemapIndex class."""
 
-    def setup(self: TestSitemapIndex) -> None:
+    def setup_method(self: TestSitemapIndex) -> None:
         """Setup for TestSitemapIndex."""
         sitemap_index_data: bytes = Path.open(
             Path("tests/sitemap_index_data.xml"),

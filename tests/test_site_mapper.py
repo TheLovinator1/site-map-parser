@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class TestSiteMapper:
     """Test the SiteMapper class."""
 
-    def setup(self: TestSiteMapper) -> None:
+    def setup_method(self: TestSiteMapper) -> None:
         """Setup for TestSiteMapper.
 
         Args:
