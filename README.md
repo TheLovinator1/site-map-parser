@@ -1,8 +1,14 @@
 # Sitemap Parser
 
 <p align="center">
-  <img src="https://github.com/thelovinator1/sitemap-parser/blob/master/logo.png" title="Robot searching for sitemaps" alt="Robot searching for sitemaps" width="300" height="300" />
+  <img src="https://github.com/thelovinator1/sitemap-parser/blob/master/logo.png?raw=true" title="Robot searching for sitemaps" alt="Robot searching for sitemaps" width="300" height="300" />
 </p>
+
+This Python library is designed to scrape sitemaps from websites, providing a simple and efficient way to gather information about the structure of a website.
+
+## Acknowledgments
+
+This is a fork of [Dave O'Connor](https://github.com/daveoconnor)'s [site-map-parser](https://github.com/daveoconnor/site-map-parser). I couldn't have done this without his original work.
 
 ## Installation
 
@@ -101,3 +107,11 @@ def get_json() -> None:
         ]
         """
 ```
+
+### Contributing
+
+Feel free to contribute to this project by creating a pull request or an issue.
+
+### License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
