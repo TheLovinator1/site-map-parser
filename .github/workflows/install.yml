@@ -18,6 +18,10 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Create new Poetry project
+        run: poetry new sitemap-parser
+      - name: Change directory to sitemap-parser
+        run: cd sitemap-parser
       - name: Install dependencies
         run: poetry add git+https://github.com/TheLovinator1/sitemap-parser.git
       - name: Download example.py
@@ -31,6 +35,10 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.12
+      - name: Create new Python project
+        run: python3 -m venv .venv
+      - name: Activate virtual environment
+        run: source .venv/bin/activate
       - name: Install dependencies
         run: pip install git+https://github.com/TheLovinator1/sitemap-parser.git
       - name: Download example.py
