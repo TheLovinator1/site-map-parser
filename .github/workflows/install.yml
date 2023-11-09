@@ -18,7 +18,9 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - run: poetry new test_project
       - run: cd test_project
-      - run: ls -lha
+      - run: pwd
+      - run: cd test_project
+      - run: ls -ahl
       - run: poetry add git+https://github.com/TheLovinator1/sitemap-parser.git
       - run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
       - run: poetry run python example.py
