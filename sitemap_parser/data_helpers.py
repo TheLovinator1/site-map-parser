@@ -3,12 +3,35 @@ from __future__ import annotations
 from io import BytesIO
 from typing import TYPE_CHECKING
 
-import requests
+import httpx
 from loguru import logger
 from lxml import etree
 
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
+
+
+def log_request(request: httpx.Request) -> None:
+    """Log the request.
+
+    Args:
+        request: The request to log
+    """
+    logger.debug(
+        f"Request event hook: {request.method} {request.url} - Waiting for response",
+    )
+
+
+def log_response(response: httpx.Response) -> None:
+    """Log the response.
+
+    Args:
+        response: The response to log
+    """
+    request: httpx.Request = response.request
+    logger.debug(
+        f"Response event hook: {request.method} {request.url} - Status {response.status_code}",  # noqa: E501
+    )
 
 
 def download_uri_data(uri: str) -> bytes:
@@ -20,14 +43,15 @@ def download_uri_data(uri: str) -> bytes:
     Returns:
         The data from the uri
     """
-    logger.info(f"Requesting data from: {uri}")
+    with httpx.Client(
+        timeout=10,
+        http2=True,
+        follow_redirects=True,
+        event_hooks={"request": [log_request], "response": [log_response]},
+    ) as client:
+        r: httpx.Response = client.get(uri)
 
-    # using requests to follow any redirects that happen
-    headers: dict[str, str] = {"Content-Type": "application/xml;charset=utf-8"}
-    r: requests.Response = requests.get(uri, headers=headers, timeout=10)
-
-    # ensure it's the decompressed content
-    r.raw.decode_content = True
+    r.raise_for_status()
     logger.debug(f"Request content: {r.content}")
     return r.content
 

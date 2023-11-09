@@ -5,13 +5,14 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
-import requests_mock
 from lxml import etree
 
 from sitemap_parser.sitemap_parser import SiteMapParser
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+
+    from pytest_httpx import HTTPXMock
 
     from sitemap_parser.sitemap import Sitemap
     from sitemap_parser.sitemap_index import SitemapIndex
@@ -76,130 +77,100 @@ class TestSiteMapper:
         assert url_set_result is True
         assert sitemap_index_result is False
 
-    def test_get_sitemaps(self: TestSiteMapper) -> None:
-        """Test get_sitemaps.
-
-        Args:
-            self: TestSiteMapper
-        """
+    def test_get_sitemaps(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
+        """Test get_sitemaps."""
         amount_of_sitemaps: int = len(self.sitemap_index_xml_root)
+        smi_data: bytes = Path.open(
+            Path("tests/sitemap_index_data.xml"),
+            "rb",
+        ).read()
+        httpx_mock.add_response(url="http://www.sitemap-example.com", content=smi_data)
+        sm = SiteMapParser("http://www.sitemap-example.com")
+        site_maps: SitemapIndex = sm.get_sitemaps()
+        assert len(list(site_maps)) == amount_of_sitemaps
 
-        with requests_mock.mock() as m:
-            smi_data: bytes = Path.open(
-                Path("tests/sitemap_index_data.xml"),
-                "rb",
-            ).read()
-            m.get("http://www.sitemap-example.com", content=smi_data)
-            sm = SiteMapParser("http://www.sitemap-example.com")
-            site_maps: SitemapIndex = sm.get_sitemaps()
-            assert len(list(site_maps)) == amount_of_sitemaps
+    def test_get_sitemaps_inappropriate_call(
+        self: TestSiteMapper,
+        httpx_mock: HTTPXMock,
+    ) -> None:
+        """Test get_sitemaps inappropriate call."""
+        us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
+        httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
+        sm = SiteMapParser("http://www.url-example.com")
+        with pytest.raises(KeyError):
+            sm.get_sitemaps()
 
-    def test_get_sitemaps_inappropriate_call(self: TestSiteMapper) -> None:
-        """Test get_sitemaps inappropriate call.
-
-        Args:
-            self: TestSiteMapper
-        """
-        with requests_mock.mock() as m:
-            us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
-            m.get("http://www.url-example.com", content=us_data)
-            sm = SiteMapParser("http://www.url-example.com")
-            with pytest.raises(KeyError):
-                sm.get_sitemaps()
-
-    def test_get_urls(self: TestSiteMapper) -> None:
-        """Test get_urls.
-
-        Args:
-            self: TestSiteMapper
-        """
+    def test_get_urls(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
+        """Test get_urls."""
         amount_of_urls: int = len(self.url_set_element)
+        us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
+        httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
+        sm = SiteMapParser("http://www.url-example.com")
+        url_set: UrlSet = sm.get_urls()
+        assert len(list(url_set)) == amount_of_urls
 
-        with requests_mock.mock() as m:
-            us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
-            m.get("http://www.url-example.com", content=us_data)
-            sm = SiteMapParser("http://www.url-example.com")
-            url_set: UrlSet = sm.get_urls()
-            assert len(list(url_set)) == amount_of_urls
+    def test_get_urls_inappropriate_call(
+        self: TestSiteMapper,
+        httpx_mock: HTTPXMock,
+    ) -> None:
+        """Test get_urls inappropriate call."""
+        smi_data: bytes = Path.open(
+            Path("tests/sitemap_index_data.xml"),
+            "rb",
+        ).read()
+        httpx_mock.add_response(url="http://www.sitemap-example.com", content=smi_data)
+        smi = SiteMapParser("http://www.sitemap-example.com")
+        with pytest.raises(KeyError):
+            smi.get_urls()
 
-    def test_get_urls_inappropriate_call(self: TestSiteMapper) -> None:
-        """Test get_urls inappropriate call.
+    def test_has_sitemaps(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
+        """Test has_sitemaps."""
+        smi_data: bytes = Path.open(
+            Path("tests/sitemap_index_data.xml"),
+            "rb",
+        ).read()
+        httpx_mock.add_response(url="http://www.sitemap-example.com", content=smi_data)
+        sm = SiteMapParser("http://www.sitemap-example.com")
+        assert sm.has_sitemaps() is True
+        assert sm.has_urls() is False
 
-        Args:
-            self: TestSiteMapper
-        """
-        with requests_mock.mock() as m:
-            smi_data: bytes = Path.open(
-                Path("tests/sitemap_index_data.xml"),
-                "rb",
-            ).read()
-            m.get("http://www.sitemap-example.com", content=smi_data)
-            smi = SiteMapParser("http://www.sitemap-example.com")
-            with pytest.raises(KeyError):
-                smi.get_urls()
+    def test_has_urls(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
+        """Test has_urls."""
+        us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
+        httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
+        sm = SiteMapParser("http://www.url-example.com")
+        assert sm.has_urls() is True
+        assert sm.has_sitemaps() is False
 
-    def test_has_sitemaps(self: TestSiteMapper) -> None:
-        """Test has_sitemaps.
+    def test_get_urls_multiple_iters(
+        self: TestSiteMapper,
+        httpx_mock: HTTPXMock,
+    ) -> None:
+        """Test get_urls multiple iters."""
+        us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
+        httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
+        sm = SiteMapParser("http://www.url-example.com")
+        urls_1: Generator[Url, Any, None] = iter(sm.get_urls())
+        urls_2: Generator[Url, Any, None] = iter(sm.get_urls())
+        assert str(next(urls_1)) == "http://www.example.com/page/a/1"
+        assert str(next(urls_2)) == "http://www.example.com/page/a/1"
+        assert str(next(urls_1)) == "http://www.example.com/page/a/2"
+        assert str(next(urls_1)) == "http://www.example.com/page/a/3"
 
-        Args:
-            self: TestSiteMapper
-        """
-        with requests_mock.mock() as m:
-            smi_data: bytes = Path.open(
-                Path("tests/sitemap_index_data.xml"),
-                "rb",
-            ).read()
-            m.get("http://www.sitemap-example.com", content=smi_data)
-            sm = SiteMapParser("http://www.sitemap-example.com")
-            assert sm.has_sitemaps() is True
-            assert sm.has_urls() is False
+    def test_get_sitemaps_multiple_iters(
+        self: TestSiteMapper,
+        httpx_mock: HTTPXMock,
+    ) -> None:
+        """Test get_sitemaps multiple iters."""
+        us_data: bytes = Path.open(
+            Path("tests/sitemap_index_data.xml"),
+            "rb",
+        ).read()
+        httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
+        sm = SiteMapParser("http://www.url-example.com")
+        sm_1: Generator[Sitemap, Any, None] = iter(sm.get_sitemaps())
+        sm_2: Generator[Sitemap, Any, None] = iter(sm.get_sitemaps())
 
-    def test_has_urls(self: TestSiteMapper) -> None:
-        """Test has_urls.
-
-        Args:
-            self: TestSiteMapper
-        """
-        with requests_mock.mock() as m:
-            us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
-            m.get("http://www.url-example.com", content=us_data)
-            sm = SiteMapParser("http://www.url-example.com")
-            assert sm.has_urls() is True
-            assert sm.has_sitemaps() is False
-
-    def test_get_urls_multiple_iters(self: TestSiteMapper) -> None:
-        """Test get_urls multiple iters.
-
-        Args:
-            self: TestSiteMapper
-        """
-        with requests_mock.mock() as m:
-            us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
-            m.get("http://www.url-example.com", content=us_data)
-            sm = SiteMapParser("http://www.url-example.com")
-            urls_1: Generator[Url, Any, None] = iter(sm.get_urls())
-            urls_2: Generator[Url, Any, None] = iter(sm.get_urls())
-            assert str(next(urls_1)) == "http://www.example.com/page/a/1"
-            assert str(next(urls_2)) == "http://www.example.com/page/a/1"
-            assert str(next(urls_1)) == "http://www.example.com/page/a/2"
-            assert str(next(urls_1)) == "http://www.example.com/page/a/3"
-
-    def test_get_sitemaps_multiple_iters(self: TestSiteMapper) -> None:
-        """Test get_sitemaps multiple iters.
-
-        Args:
-            self: TestSiteMapper
-        """
-        with requests_mock.mock() as m:
-            us_data: bytes = Path.open(
-                Path("tests/sitemap_index_data.xml"),
-                "rb",
-            ).read()
-            m.get("http://www.url-example.com", content=us_data)
-            sm = SiteMapParser("http://www.url-example.com")
-            sm_1: Generator[Sitemap, Any, None] = iter(sm.get_sitemaps())
-            sm_2: Generator[Sitemap, Any, None] = iter(sm.get_sitemaps())
-
-            assert str(next(sm_1)) == "http://www.example.com/sitemap_a.xml"
-            assert str(next(sm_1)) == "https://www.example.com/sitemap_b.xml"
-            assert str(next(sm_2)) == "http://www.example.com/sitemap_a.xml"
+        assert str(next(sm_1)) == "http://www.example.com/sitemap_a.xml"
+        assert str(next(sm_1)) == "https://www.example.com/sitemap_b.xml"
+        assert str(next(sm_2)) == "http://www.example.com/sitemap_a.xml"
