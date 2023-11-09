@@ -3,7 +3,8 @@
 ## Installation
 
 ```sh
-pip install site-map-parser
+poetry add git+https://github.com/TheLovinator1/site-map-parser.git
+pip install git+https://github.com/TheLovinator1/site-map-parser.git
 ```
 
 ## Usage
