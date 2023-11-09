@@ -1,0 +1,39 @@
+name: Install and run example.py
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *" # Run every day
+  workflow_dispatch:
+
+jobs:
+  install_poetry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install dependencies
+        run: poetry add git+https://github.com/TheLovinator1/sitemap-parser.git
+      - name: Download example.py
+        run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
+      - name: Run example.py
+        run: python3 example.py
+  install_pip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Install dependencies
+        run: pip install git+https://github.com/TheLovinator1/sitemap-parser.git
+      - name: Download example.py
+        run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
+      - name: Run example.py
+        run: python3 example.py
