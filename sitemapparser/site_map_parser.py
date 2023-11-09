@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from loguru import logger
 
 from .data_helpers import data_to_element, download_uri_data
 from .sitemap_index import SitemapIndex
 from .url_set import UrlSet
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
+
+# Element doesn't have xpath method
+# pyright: reportGeneralTypeIssues=false
 
 
 class SiteMapParser:
@@ -29,7 +37,7 @@ class SiteMapParser:
             self._url_set = UrlSet(root_element)
 
     @staticmethod
-    def _is_sitemap_index_element(element) -> bool:  # noqa: ANN001
+    def _is_sitemap_index_element(element: Element) -> bool:
         """Determine if the element is a <sitemapindex>.
 
         Args:
@@ -41,7 +49,7 @@ class SiteMapParser:
         return bool(len(element.xpath("/*[local-name()='sitemapindex']")))
 
     @staticmethod
-    def _is_url_set_element(element) -> bool:  # noqa: ANN001
+    def _is_url_set_element(element: Element) -> bool:
         """Determine if the element is a <urlset>.
 
         Args:

@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 import requests
 from loguru import logger
 from lxml import etree
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
 
 
 def download_uri_data(uri: str) -> bytes:
@@ -28,7 +32,7 @@ def download_uri_data(uri: str) -> bytes:
     return r.content
 
 
-def data_to_element(data: bytes):  # noqa: ANN201
+def data_to_element(data: bytes) -> Element:
     """Convert the data to an lxml element.
 
     Args:

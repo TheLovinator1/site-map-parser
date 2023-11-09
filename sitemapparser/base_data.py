@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from abc import ABCMeta
 from typing import TYPE_CHECKING
 
 from dateutil import parser
@@ -10,7 +9,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 
-class BaseData(metaclass=ABCMeta):  # noqa: B024
+class BaseData:
     """Base class for Sitemap and SitemapIndex.
 
     Args:

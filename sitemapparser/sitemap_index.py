@@ -8,12 +8,16 @@ from sitemapparser.sitemap import Sitemap
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from xml.etree.ElementTree import Element
+
+# Element doesn't have xpath method
+# pyright: reportGeneralTypeIssues=false
 
 
 class SitemapIndex:
     """Represents a <sitemapindex> element."""
 
-    def __init__(self: SitemapIndex, index_element) -> None:  # noqa: ANN001
+    def __init__(self: SitemapIndex, index_element: Element) -> None:
         """Creates a SitemapIndex instance.
 
         Args:
@@ -23,7 +27,7 @@ class SitemapIndex:
         self.index_element = index_element
 
     @staticmethod
-    def sitemap_from_sitemap_element(sitemap_element) -> Sitemap:  # noqa: ANN001
+    def sitemap_from_sitemap_element(sitemap_element: Element) -> Sitemap:
         """Creates a Sitemap instance from a <sitemap> element.
 
         Args:
@@ -44,7 +48,7 @@ class SitemapIndex:
 
     @staticmethod
     def sitemaps_from_sitemap_index_element(
-        index_element,  # noqa: ANN001
+        index_element: Element,
     ) -> Generator[Sitemap, Any, None]:
         """Generator for Sitemap instances from a <sitemapindex> element.
 

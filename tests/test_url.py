@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime
 
 import pytest
@@ -54,7 +55,12 @@ class TestUrl:
         u.changefreq = "never"
         assert u.changefreq == "never"
 
-        with pytest.raises(ValueError):  # noqa: PT011
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                "'foobar' is not an allowed value: ('always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never')",  # noqa: E501
+            ),
+        ):
             u.changefreq = "foobar"
 
     def test_priority(self: TestUrl) -> None:
@@ -77,9 +83,9 @@ class TestUrl:
         u.priority = priority10
         assert u.priority == priority10
 
-        with pytest.raises(ValueError):  # noqa: PT011
+        with pytest.raises(ValueError, match="'{}' is not between 0.0 and 1.0"):
             u.priority = 1.1  # Max is 1.0
-        with pytest.raises(ValueError):  # noqa: PT011
+        with pytest.raises(ValueError, match="'{}' is not between 0.0 and 1.0"):
             u.priority = -0.1  # Min is 0.0
 
     def test_str(self: TestUrl) -> None:

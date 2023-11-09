@@ -10,6 +10,8 @@ from sitemapparser.url import Url
 
 if TYPE_CHECKING:
     from sitemapparser.site_map_parser import SiteMapParser
+    from sitemapparser.sitemap_index import SitemapIndex
+    from sitemapparser.url_set import UrlSet
 
 
 @dataclass
@@ -25,7 +27,8 @@ class JSONExporter:
 
     data: SiteMapParser
 
-    def _collate(self: JSONExporter, fields: tuple, row_data: list) -> list:  # noqa: PLR6301
+    @staticmethod
+    def _collate(fields: tuple, row_data: SitemapIndex | UrlSet) -> list:
         dump_data = []
         for sm in row_data:
             row = {}
@@ -41,7 +44,7 @@ class JSONExporter:
         Returns:
             JSON data
         """
-        return dumps(self._collate(Sitemap.fields, self.data.get_sitemaps()))  # type: ignore  # noqa: PGH003
+        return dumps(self._collate(Sitemap.fields, self.data.get_sitemaps()))
 
     def export_urls(self: JSONExporter) -> str:
         """Export site map data to JSON format.
@@ -49,4 +52,4 @@ class JSONExporter:
         Returns:
             JSON data
         """
-        return dumps(self._collate(Url.fields, self.data.get_urls()))  # type: ignore  # noqa: PGH003
+        return dumps(self._collate(Url.fields, self.data.get_urls()))

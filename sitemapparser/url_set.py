@@ -6,6 +6,12 @@ from loguru import logger
 
 from .url import Url
 
+if typing.TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
+
+# Element doesn't have xpath method
+# pyright: reportGeneralTypeIssues=false
+
 
 class UrlSet:
     """Class to represent a <urlset> element.
@@ -24,16 +30,16 @@ class UrlSet:
         "priority",
     ]
 
-    def __init__(self: UrlSet, urlset_element) -> None:  # noqa: ANN001
+    def __init__(self: UrlSet, urlset_element: Element) -> None:
         """Creates a UrlSet instance.
 
         Args:
             urlset_element: lxml representation of a <urlset> element
         """
-        self.urlset_element = urlset_element
+        self.urlset_element: Element = urlset_element
 
     @staticmethod
-    def url_from_url_element(url_element) -> Url:  # noqa: ANN001
+    def url_from_url_element(url_element: Element) -> Url:
         """Creates a Url instance from a <url> element.
 
         Args:
@@ -54,7 +60,7 @@ class UrlSet:
 
     @staticmethod
     def urls_from_url_set_element(
-        url_set_element,  # noqa: ANN001
+        url_set_element: Element,
     ) -> typing.Generator[Url, typing.Any, None]:
         """Generator for Url instances from a <urlset> element.
 
