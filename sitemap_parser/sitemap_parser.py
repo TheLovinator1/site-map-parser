@@ -25,7 +25,7 @@ class SiteMapParser:
             uri: The uri to parse
         """
         data: bytes = download_uri_data(uri)
-        root_element = data_to_element(data)
+        root_element: Element = data_to_element(data)
 
         self.is_sitemap_index: bool = self._is_sitemap_index_element(root_element)
 
@@ -102,6 +102,8 @@ class SiteMapParser:
     def has_sitemaps(self: SiteMapParser) -> bool:
         """Determine if the URL's data contained sitemaps.
 
+        A sitemap can contain other sitemaps. For example: <https://www.webhallen.com/sitemap.xml>
+
         Args:
             self: The SiteMapParser instance
 
@@ -120,3 +122,16 @@ class SiteMapParser:
             Boolean
         """
         return not self.is_sitemap_index
+
+    def __str__(self: SiteMapParser) -> str:
+        """String representation of the SiteMapParser instance.
+
+        Args:
+            self: The SiteMapParser instance
+
+        Returns:
+            String
+        """
+        if self.has_sitemaps():
+            return str(self._sitemaps)
+        return str(self._url_set)

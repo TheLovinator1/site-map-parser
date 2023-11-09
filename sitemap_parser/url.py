@@ -120,3 +120,14 @@ class Url(BaseData):
             String representation of the Url instance
         """
         return self.loc or ""
+
+    def __repr__(self: Url) -> str:
+        """Return a string representation of the Url instance.
+
+        Args:
+            self: The Url instance
+
+        Returns:
+            String representation of the Url instance
+        """
+        return f"Url(loc={self.loc}, lastmod={self.lastmod}, changefreq={self.changefreq}, priority={self.priority})"  # noqa: E501

@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from sitemapparser.base_data import BaseData
+from sitemap_parser.base_data import BaseData
 
 
 class TestBaseData:

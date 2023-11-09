@@ -5,13 +5,13 @@ from datetime import datetime
 from json import dumps
 from typing import TYPE_CHECKING
 
-from sitemapparser.sitemap import Sitemap
-from sitemapparser.url import Url
+from sitemap_parser.sitemap import Sitemap
+from sitemap_parser.url import Url
 
 if TYPE_CHECKING:
-    from sitemapparser.site_map_parser import SiteMapParser
-    from sitemapparser.sitemap_index import SitemapIndex
-    from sitemapparser.url_set import UrlSet
+    from sitemap_parser.sitemap_index import SitemapIndex
+    from sitemap_parser.sitemap_parser import SiteMapParser
+    from sitemap_parser.url_set import UrlSet
 
 
 @dataclass

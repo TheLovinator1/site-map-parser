@@ -5,7 +5,7 @@ from datetime import datetime
 
 import pytest
 
-from sitemapparser.url import Url
+from sitemap_parser.url import Url
 
 
 class TestUrl:

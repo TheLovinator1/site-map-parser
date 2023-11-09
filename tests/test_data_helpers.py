@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import requests_mock
 
-from sitemapparser.data_helpers import data_to_element, download_uri_data
+from sitemap_parser.data_helpers import data_to_element, download_uri_data
 
 
 def test_download_uri_data_sitemap_index() -> None:

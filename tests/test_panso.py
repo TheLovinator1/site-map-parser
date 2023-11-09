@@ -1,12 +1,12 @@
 import json
 from typing import TYPE_CHECKING
 
-from sitemapparser.exporter import JSONExporter
-from sitemapparser.site_map_parser import SiteMapParser
+from sitemap_parser.exporter import JSONExporter
+from sitemap_parser.sitemap_parser import SiteMapParser
 
 if TYPE_CHECKING:
-    from sitemapparser.sitemap_index import SitemapIndex
-    from sitemapparser.url_set import UrlSet
+    from sitemap_parser.sitemap_index import SitemapIndex
+    from sitemap_parser.url_set import UrlSet
 
 
 def test_panso() -> None:

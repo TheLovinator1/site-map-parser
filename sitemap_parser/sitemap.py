@@ -32,3 +32,11 @@ class Sitemap(BaseData):
             String
         """
         return self.loc
+
+    def __repr__(self: Sitemap) -> str:
+        """Representation of the Sitemap instance.
+
+        Returns:
+            String
+        """
+        return f"<Sitemap {self.loc}>"

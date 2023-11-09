@@ -1,9 +1,11 @@
 [tool.poetry]
-name = "site-map-parser"
+name = "sitemap-parser"
 version = "0.1.0"
 description = ""
 authors = ["Joakim Hellsén <tlovinator@gmail.com>"]
 readme = "README.md"
+license = "MIT"
+packages = [{ include = "sitemap_parser", from = "." }]
 
 [tool.poetry.dependencies]
 python = "^3.12"

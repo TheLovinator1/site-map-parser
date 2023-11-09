@@ -8,15 +8,15 @@ import pytest
 import requests_mock
 from lxml import etree
 
-from sitemapparser.site_map_parser import SiteMapParser
+from sitemap_parser.sitemap_parser import SiteMapParser
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-    from sitemapparser.sitemap import Sitemap
-    from sitemapparser.sitemap_index import SitemapIndex
-    from sitemapparser.url import Url
-    from sitemapparser.url_set import UrlSet
+    from sitemap_parser.sitemap import Sitemap
+    from sitemap_parser.sitemap_index import SitemapIndex
+    from sitemap_parser.url import Url
+    from sitemap_parser.url_set import UrlSet
 
 
 class TestSiteMapper:

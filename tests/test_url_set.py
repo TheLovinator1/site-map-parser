@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Any
 
 from lxml import etree
 
-from sitemapparser.url import Url
-from sitemapparser.url_set import UrlSet
+from sitemap_parser.url import Url
+from sitemap_parser.url_set import UrlSet
 
 if TYPE_CHECKING:
     from collections.abc import Generator

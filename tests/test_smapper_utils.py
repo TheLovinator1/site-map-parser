@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sitemapparser.smapper_utils import uri_modifier
+from sitemap_parser.smapper_utils import uri_modifier
 
 
 def test_uri_modifier_begins() -> None:

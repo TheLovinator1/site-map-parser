@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sitemapparser.sitemap import Sitemap
+from sitemap_parser.sitemap import Sitemap
 
 
 class TestSitemap:

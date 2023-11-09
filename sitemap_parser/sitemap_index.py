@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from loguru import logger
 
-from sitemapparser.sitemap import Sitemap
+from sitemap_parser.sitemap import Sitemap
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -24,7 +24,7 @@ class SitemapIndex:
             self: The SitemapIndex instance
             index_element: lxml representation of a <sitemapindex> element
         """
-        self.index_element = index_element
+        self.index_element: Element = index_element
 
     @staticmethod
     def sitemap_from_sitemap_element(sitemap_element: Element) -> Sitemap:
@@ -61,7 +61,7 @@ class SitemapIndex:
         logger.debug("Generating sitemaps from {}", index_element)
 
         # handle child elements, <sitemap>
-        sitemaps = index_element.findall("./*")
+        sitemaps: list[Element] = index_element.findall("./*")
         for sm_element in sitemaps:
             yield SitemapIndex.sitemap_from_sitemap_element(sm_element)
 
@@ -78,3 +78,14 @@ class SitemapIndex:
             Sitemap instance
         """
         return SitemapIndex.sitemaps_from_sitemap_index_element(self.index_element)
+
+    def __str__(self: SitemapIndex) -> str:
+        """String representation of the SitemapIndex instance.
+
+        Args:
+            self: The SitemapIndex instance
+
+        Returns:
+            String
+        """
+        return "SitemapIndex"

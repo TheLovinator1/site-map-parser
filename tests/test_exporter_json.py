@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from sitemapparser.exporter import JSONExporter
-from sitemapparser.sitemap import Sitemap
-from sitemapparser.url import Url
+from sitemap_parser.exporter import JSONExporter
+from sitemap_parser.sitemap import Sitemap
+from sitemap_parser.url import Url
 
 
 class TestExporter:

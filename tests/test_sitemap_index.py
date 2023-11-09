@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Any
 
 from lxml import etree
 
-from sitemapparser.sitemap import Sitemap
-from sitemapparser.sitemap_index import SitemapIndex
+from sitemap_parser.sitemap import Sitemap
+from sitemap_parser.sitemap_index import SitemapIndex
 
 if TYPE_CHECKING:
     from collections.abc import Generator
