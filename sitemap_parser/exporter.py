@@ -41,15 +41,19 @@ class JSONExporter:
     def export_sitemaps(self: JSONExporter) -> str:
         """Export site map data to JSON format.
 
+        You can use json.loads() to convert the string to a dict.
+
         Returns:
-            JSON data
+            JSON data as a string
         """
         return dumps(self._collate(Sitemap.fields, self.data.get_sitemaps()))
 
     def export_urls(self: JSONExporter) -> str:
         """Export site map data to JSON format.
 
+        You can use json.loads() to convert the string to a dict.
+
         Returns:
-            JSON data
+            JSON data as a string
         """
         return dumps(self._collate(Url.fields, self.data.get_urls()))
