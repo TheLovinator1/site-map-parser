@@ -9,7 +9,7 @@ packages = [{ include = "sitemap_parser", from = "." }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-lxml = "^4.9.3"
+lxml = "^5.0.0"
 python-dateutil = "^2.8.2"
 loguru = "^0.7.2"
 httpx = { extras = ["http2"], version = "^0.25.1" }
