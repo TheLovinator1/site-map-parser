@@ -15,6 +15,6 @@ def uri_modifier(url: str) -> str:
 
     if not url.endswith(".xml"):
         if not url.endswith("/"):
-            url = url + "/"
-        url = url + "sitemap.xml"
+            url += "/"
+        url += "sitemap.xml"
     return url

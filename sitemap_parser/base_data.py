@@ -47,9 +47,7 @@ class BaseData:
             self: The BaseData object
             value: The value to set
         """
-        self._lastmod: datetime | None = (
-            parser.isoparse(value) if value is not None else None
-        )
+        self._lastmod: datetime | None = parser.isoparse(value) if value is not None else None
 
     @property
     def loc(self: BaseData) -> str | None:

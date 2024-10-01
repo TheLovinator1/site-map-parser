@@ -7,11 +7,8 @@ from loguru import logger
 from sitemap_parser.sitemap import Sitemap
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Generator, Iterator
     from xml.etree.ElementTree import Element
-
-# Element doesn't have xpath method
-# pyright: reportGeneralTypeIssues=false
 
 
 class SitemapIndex:
@@ -38,8 +35,8 @@ class SitemapIndex:
         """
         sitemap_data: dict = {}
         for ele in sitemap_element:
-            name = ele.xpath("local-name()")
-            value = ele.xpath("text()")[0]
+            name = ele.xpath("local-name()")  # type: ignore[attr-defined]
+            value = ele.xpath("text()")[0]  # type: ignore[attr-defined]
             sitemap_data[name] = value
 
         msg = "Returning sitemap object with data: {}"
@@ -65,7 +62,7 @@ class SitemapIndex:
         for sm_element in sitemaps:
             yield SitemapIndex.sitemap_from_sitemap_element(sm_element)
 
-    def __iter__(self: SitemapIndex) -> Generator[Sitemap, Any, None]:
+    def __iter__(self: SitemapIndex) -> Iterator[Sitemap]:
         """Generator for Sitemap instances from a <sitemapindex> element.
 
         Args:

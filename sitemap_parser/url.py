@@ -59,10 +59,7 @@ class Url(BaseData):
     @property
     def changefreq(
         self: Url,
-    ) -> (
-        Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"]
-        | None
-    ):
+    ) -> Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"] | None:
         """Get changefreq."""
         return self._changefreq
 
@@ -80,10 +77,9 @@ class Url(BaseData):
         if frequency is not None and frequency not in Url.valid_freqs:
             error_msg = "'{}' is not an allowed value: {}"
             raise ValueError(error_msg.format(frequency, Url.valid_freqs))
-        self._changefreq: (
-            Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"]
-            | None
-        ) = frequency
+        self._changefreq: Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"] | None = (
+            frequency
+        )
 
     @property
     def priority(self: Url) -> float | None:
@@ -130,4 +126,4 @@ class Url(BaseData):
         Returns:
             String representation of the Url instance
         """
-        return f"Url(loc={self.loc}, lastmod={self.lastmod}, changefreq={self.changefreq}, priority={self.priority})"  # noqa: E501
+        return f"Url(loc={self.loc}, lastmod={self.lastmod}, changefreq={self.changefreq}, priority={self.priority})"

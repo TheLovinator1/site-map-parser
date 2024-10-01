@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import pytest
 from lxml import etree
@@ -10,7 +10,7 @@ from lxml import etree
 from sitemap_parser.sitemap_parser import SiteMapParser
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from collections.abc import Iterator
 
     from pytest_httpx import HTTPXMock
 
@@ -150,8 +150,8 @@ class TestSiteMapper:
         us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
         httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
         sm = SiteMapParser("http://www.url-example.com")
-        urls_1: Generator[Url, Any, None] = iter(sm.get_urls())
-        urls_2: Generator[Url, Any, None] = iter(sm.get_urls())
+        urls_1: Iterator[Url] = iter(sm.get_urls())
+        urls_2: Iterator[Url] = iter(sm.get_urls())
         assert str(next(urls_1)) == "http://www.example.com/page/a/1"
         assert str(next(urls_2)) == "http://www.example.com/page/a/1"
         assert str(next(urls_1)) == "http://www.example.com/page/a/2"
@@ -168,8 +168,8 @@ class TestSiteMapper:
         ).read()
         httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
         sm = SiteMapParser("http://www.url-example.com")
-        sm_1: Generator[Sitemap, Any, None] = iter(sm.get_sitemaps())
-        sm_2: Generator[Sitemap, Any, None] = iter(sm.get_sitemaps())
+        sm_1: Iterator[Sitemap] = iter(sm.get_sitemaps())
+        sm_2: Iterator[Sitemap] = iter(sm.get_sitemaps())
 
         assert str(next(sm_1)) == "http://www.example.com/sitemap_a.xml"
         assert str(next(sm_1)) == "https://www.example.com/sitemap_b.xml"

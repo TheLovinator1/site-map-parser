@@ -30,7 +30,7 @@ def log_response(response: httpx.Response) -> None:
     """
     request: httpx.Request = response.request
     logger.debug(
-        f"Response event hook: {request.method} {request.url} - Status {response.status_code}",  # noqa: E501
+        f"Response event hook: {request.method} {request.url} - Status {response.status_code}",
     )
 
 

@@ -11,9 +11,6 @@ from .url_set import UrlSet
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
-# Element doesn't have xpath method
-# pyright: reportGeneralTypeIssues=false
-
 
 class SiteMapParser:
     """Parses a sitemap or sitemap index and returns the appropriate object."""
@@ -46,7 +43,7 @@ class SiteMapParser:
         Returns:
             Boolean
         """
-        return bool(len(element.xpath("/*[local-name()='sitemapindex']")))
+        return bool(len(element.xpath("/*[local-name()='sitemapindex']")))  # type: ignore[attr-defined]
 
     @staticmethod
     def _is_url_set_element(element: Element) -> bool:
@@ -58,7 +55,7 @@ class SiteMapParser:
         Returns:
             Boolean
         """
-        return bool(len(element.xpath("/*[local-name()='urlset']")))
+        return bool(len(element.xpath("/*[local-name()='urlset']")))  # type: ignore[attr-defined]
 
     def get_sitemaps(self: SiteMapParser) -> SitemapIndex:
         """Retrieve the sitemaps.

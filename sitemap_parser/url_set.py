@@ -9,9 +9,6 @@ from .url import Url
 if typing.TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
-# Element doesn't have xpath method
-# pyright: reportGeneralTypeIssues=false
-
 
 class UrlSet:
     """Class to represent a <urlset> element.
@@ -51,9 +48,9 @@ class UrlSet:
         logger.debug(f"urls_from_url_element {url_element}")
         url_data: dict = {}
         for ele in url_element:
-            name = ele.xpath("local-name()")
+            name = ele.xpath("local-name()")  # type: ignore[attr-defined]
             if name in UrlSet.allowed_fields:
-                url_data[name] = ele.xpath("text()")[0]
+                url_data[name] = ele.xpath("text()")[0]  # type: ignore[attr-defined]
 
         logger.debug(f"url_data {url_data}")
         return Url(**url_data)
@@ -78,7 +75,7 @@ class UrlSet:
         for url_element in url_set_element:
             yield UrlSet.url_from_url_element(url_element)
 
-    def __iter__(self: UrlSet) -> typing.Generator[Url, typing.Any, None]:
+    def __iter__(self: UrlSet) -> typing.Iterator[Url]:
         """Generator for Url instances from a <urlset> element.
 
         Args:
