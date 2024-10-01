@@ -1,10 +1,10 @@
 name: Ruff
 on:
-    push:
-    pull_request:
-    schedule:
-      - cron: '0 0 * * *' # Run every day
-    workflow_dispatch:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *" # Run every day
+  workflow_dispatch:
 
 jobs:
   ruff:
