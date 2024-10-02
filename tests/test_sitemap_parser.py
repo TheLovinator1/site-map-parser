@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from unittest.mock import MagicMock
 
+import hishel
 import pytest
 from lxml import etree
 from pytest_httpx import HTTPXMock
@@ -78,7 +79,23 @@ def test_download_uri_data_sitemap_index(httpx_mock: HTTPXMock) -> None:
         content=smi_data,
     )
     downloaded_data: bytes = download_uri_data(
-        "http://www.example.com/sitemapindex.xml",
+        uri="http://www.example.com/sitemapindex.xml",
+        should_cache=False,
+    )
+    assert downloaded_data == smi_data
+
+
+def test_download_uri_data_sitemap_index_cache(httpx_mock: HTTPXMock) -> None:
+    """Test download_uri_data() with a sitemap index with caching."""
+    smi_data: bytes = Path.open(Path("tests/sitemap_index_data.xml"), "rb").read()
+    httpx_mock.add_response(
+        url="http://www.example.com/sitemapindex.xml",
+        content=smi_data,
+    )
+    downloaded_data: bytes = download_uri_data(
+        uri="http://www.example.com/sitemapindex.xml",
+        hishel_client=hishel.CacheClient(),
+        should_cache=True,
     )
     assert downloaded_data == smi_data
 
@@ -91,7 +108,23 @@ def test_download_uri_data_urlset(httpx_mock: HTTPXMock) -> None:
         content=us_data,
     )
     downloaded_data: bytes = download_uri_data(
-        "http://www.example.com/urlset_a.xml",
+        uri="http://www.example.com/urlset_a.xml",
+        should_cache=False,
+    )
+    assert downloaded_data == us_data
+
+
+def test_download_uri_data_urlset_cache(httpx_mock: HTTPXMock) -> None:
+    """Test download_uri_data() with a urlset."""
+    us_data = Path.open(Path("tests/urlset_a.xml"), "rb").read()
+    httpx_mock.add_response(
+        url="http://www.example.com/urlset_a.xml",
+        content=us_data,
+    )
+    downloaded_data: bytes = download_uri_data(
+        uri="http://www.example.com/urlset_a.xml",
+        hishel_client=hishel.CacheClient(),
+        should_cache=True,
     )
     assert downloaded_data == us_data
 

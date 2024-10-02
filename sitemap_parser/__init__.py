@@ -5,9 +5,11 @@ import typing
 from datetime import datetime
 from io import BytesIO
 from json import dumps
+from pathlib import Path
 from typing import Any, Literal
 from xml.etree.ElementTree import Element
 
+import hishel
 import httpx
 from dateutil import parser
 from loguru import logger
@@ -100,26 +102,47 @@ class BaseData:
         self._loc = value
 
 
-def download_uri_data(uri: str) -> bytes:
+def download_uri_data(uri: str, *, hishel_client: hishel.CacheClient | None = None, should_cache: bool = True) -> bytes:
     """Download the data from the uri.
 
     Args:
         uri: The uri to download. Expected format: HTTP/HTTPS URL.
+        hishel_client: The Hishel client to use for downloading the data. If None, the data will be downloaded without caching.
+        should_cache: Whether to cache the request with Hishel (https://hishel.com/) or not.
 
     Returns:
         The data from the uri
-    """
-    with httpx.Client(timeout=10, http2=True, follow_redirects=True) as client:
-        r: httpx.Response = client.get(uri)
+    """  # noqa: E501
+    if should_cache and hishel_client is not None:
+        with hishel_client as client:
+            logger.info("Downloading with cache from {}", uri)
+            r: httpx.Response = client.get(uri)
+    else:
+        with httpx.Client(timeout=10, http2=True, follow_redirects=True) as client:
+            logger.info("Downloading without cache from {}", uri)
+            r: httpx.Response = client.get(uri)
+
+    log_cache_usage(request=r)
 
     r.raise_for_status()
     logger.debug("Downloaded data from {}", uri)
 
     max_log_length = 100
-    truncated_content = r.content[:max_log_length] + b"..." if len(r.content) > max_log_length else r.content
+    truncated_content: bytes = r.content[:max_log_length] + b"..." if len(r.content) > max_log_length else r.content
     logger.debug("Downloaded data: {}", truncated_content)
 
     return r.content
+
+
+def log_cache_usage(request: httpx.Response) -> None:
+    """Log if the data was retrieved from cache.
+
+    Args:
+        request (httpx.Response): The response object from the download.
+    """
+    from_cache: Any | bool = request.extensions.get("from_cache", False)
+    if from_cache:
+        logger.info("%s was retrieved from cache", request.url)
 
 
 def bytes_to_element(data: bytes) -> Element:
@@ -465,7 +488,7 @@ class SitemapIndex:
 class SiteMapParser:
     """Parses a sitemap or sitemap index and returns the appropriate object."""
 
-    def __init__(self, uri: str) -> None:
+    def __init__(self, uri: str, *, should_cache: bool = True, cache_dir: Path = Path(".cache")) -> None:
         """Initialize the SiteMapParser instance with the URI.
 
         The URI is expected to be a sitemap or sitemap index. The parser will determine which type of object it is.
@@ -474,17 +497,57 @@ class SiteMapParser:
 
         Args:
             uri: The URI of the sitemap or sitemap index.
+            should_cache: Whether to cache the request with Hishel (https://hishel.com/) or not.
+            cache_dir: The directory to store the cached data.
         """
         self.uri: str = uri
         self.is_sitemap_index: bool = False
         self._sitemaps: SitemapIndex | None = None
         self._url_set: UrlSet | None = None
+        self._should_cache: bool = should_cache
+        self._cache_dir: Path = cache_dir
         self._initialize()
+
+    @staticmethod
+    def get_hishel_controller() -> hishel.Controller:
+        """Get the Hishel default controller.
+
+        Returns:
+            The Hishel controller
+        """
+        return hishel.Controller(
+            cacheable_methods=["GET", "HEAD"],
+            cacheable_status_codes=[200, 203, 204, 206, 300, 301, 308, 404, 405, 410, 414, 501],
+        )
+
+    def get_hishel_storage(self) -> hishel.FileStorage:
+        """Get the Hishel default storage.
+
+        Returns:
+            The Hishel file storage.
+        """
+        return hishel.FileStorage(base_path=self._cache_dir)
+
+    def get_hishel_client(self) -> hishel.CacheClient:
+        """Get the Hishel default client.
+
+        Returns:
+            The Hishel client
+        """
+        controller: hishel.Controller = SiteMapParser.get_hishel_controller()
+        storage: hishel.FileStorage = SiteMapParser.get_hishel_storage(self)
+        return hishel.CacheClient(controller=controller, storage=storage, timeout=10, http2=True, follow_redirects=True)
 
     def _initialize(self) -> None:
         """Initialization processing."""
-        data: bytes = download_uri_data(self.uri)
-        root_element: Element = bytes_to_element(data)
+        self._cache_dir.mkdir(parents=True, exist_ok=True)
+
+        data: bytes = download_uri_data(
+            uri=self.uri,
+            hishel_client=self.get_hishel_client(),
+            should_cache=self._should_cache,
+        )
+        root_element: Element = bytes_to_element(data=data)
 
         self.is_sitemap_index = self._is_sitemap_index_element(root_element)
 
@@ -560,6 +623,12 @@ class SiteMapParser:
         if not self.has_urls():
             error_msg = "Method called when root is not a <urlset>"
             logger.critical(error_msg)
+
+            # Check if the root is a <sitemapindex>
+            if self.is_sitemap_index:
+                error_msg = "Method called when root is a <sitemapindex>"
+                error_msg += " Use 'get_sitemaps()' instead"
+
             raise KeyError(error_msg)
 
         if self._url_set is None:

@@ -13,6 +13,7 @@ httpx = { extras = ["http2"], version = "*" }
 loguru = "*"
 lxml = "*"
 python-dateutil = "*"
+hishel = "^0.0.32"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "*"
@@ -53,3 +54,9 @@ lint.ignore = [
   "FBT",     # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
   "PLR6301",
 ]
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "DEBUG"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
