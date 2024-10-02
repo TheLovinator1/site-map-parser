@@ -1,20 +1,22 @@
 from __future__ import annotations
 
 
-def uri_modifier(url: str) -> str:
-    """Modify the uri to be a valid sitemap.xml url.
+def ensure_sitemap_url_format(url: str, default_scheme: str = "https://") -> str:
+    """Ensure the URL starts with `http://` or `https://` and ends with `sitemap.xml`.
 
     Args:
-        url: Url to be modified
+        url: A string representing a URL to be modified
+        default_scheme: The default scheme to use if the URL does not start with `http://` or `https://`
 
     Returns:
         Modified url
     """
-    if not url.startswith("https://") and not url.startswith("http://"):
-        url = "http://" + url
+    # Ensure the URL starts with `http://` or `https://`
+    if not url.startswith(("https://", "http://")):
+        url = default_scheme + url
 
-    if not url.endswith(".xml"):
-        if not url.endswith("/"):
-            url += "/"
-        url += "sitemap.xml"
+    # Ensure the URL ends with `sitemap.xml`
+    if not url.endswith("sitemap.xml"):
+        url = url.rstrip("/") + "/sitemap.xml"
+
     return url

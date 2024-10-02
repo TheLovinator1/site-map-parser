@@ -29,23 +29,14 @@ class TestSiteMapper:
         Args:
             self: TestSiteMapper
         """
-        sitemap_index_data: bytes = Path.open(
-            Path("tests/sitemap_index_data.xml"),
-            "rb",
-        ).read()
+        sitemap_index_data: bytes = Path.open(Path("tests/sitemap_index_data.xml"), "rb").read()
         utf8_parser = etree.XMLParser(encoding="utf-8")
-        self.sitemap_index_xml_root = etree.parse(
-            BytesIO(sitemap_index_data),
-            parser=utf8_parser,
-        ).getroot()
+        self.sitemap_index_xml_root = etree.parse(BytesIO(sitemap_index_data), parser=utf8_parser).getroot()
         self.sitemap_index_element_xml = self.sitemap_index_xml_root[0]
 
         url_set_data_bytes: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
         utf8_parser = etree.XMLParser(encoding="utf-8")
-        self.url_set_data_xml = etree.parse(
-            BytesIO(url_set_data_bytes),
-            parser=utf8_parser,
-        )
+        self.url_set_data_xml = etree.parse(BytesIO(url_set_data_bytes), parser=utf8_parser)
         self.url_set_element = self.url_set_data_xml.getroot()
         self.url_element_1 = self.url_set_data_xml.getroot()[0]
 
@@ -55,12 +46,8 @@ class TestSiteMapper:
         Args:
             self: TestSiteMapper
         """
-        sitemap_index_result: bool = SiteMapParser._is_sitemap_index_element(  # noqa: SLF001
-            self.sitemap_index_xml_root,
-        )
-        url_set_result: bool = SiteMapParser._is_sitemap_index_element(  # noqa: SLF001
-            self.url_set_element,
-        )
+        sitemap_index_result: bool = SiteMapParser._is_sitemap_index_element(self.sitemap_index_xml_root)  # noqa: SLF001
+        url_set_result: bool = SiteMapParser._is_sitemap_index_element(self.url_set_element)  # noqa: SLF001
         assert sitemap_index_result is True
         assert url_set_result is False
 
@@ -71,28 +58,20 @@ class TestSiteMapper:
             self: TestSiteMapper
         """
         url_set_result: bool = SiteMapParser._is_url_set_element(self.url_set_element)  # noqa: SLF001
-        sitemap_index_result: bool = SiteMapParser._is_url_set_element(  # noqa: SLF001
-            self.sitemap_index_xml_root,
-        )
+        sitemap_index_result: bool = SiteMapParser._is_url_set_element(self.sitemap_index_xml_root)  # noqa: SLF001
         assert url_set_result is True
         assert sitemap_index_result is False
 
     def test_get_sitemaps(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
         """Test get_sitemaps."""
         amount_of_sitemaps: int = len(self.sitemap_index_xml_root)
-        smi_data: bytes = Path.open(
-            Path("tests/sitemap_index_data.xml"),
-            "rb",
-        ).read()
+        smi_data: bytes = Path.open(Path("tests/sitemap_index_data.xml"), "rb").read()
         httpx_mock.add_response(url="http://www.sitemap-example.com", content=smi_data)
         sm = SiteMapParser("http://www.sitemap-example.com")
         site_maps: SitemapIndex = sm.get_sitemaps()
         assert len(list(site_maps)) == amount_of_sitemaps
 
-    def test_get_sitemaps_inappropriate_call(
-        self: TestSiteMapper,
-        httpx_mock: HTTPXMock,
-    ) -> None:
+    def test_get_sitemaps_inappropriate_call(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
         """Test get_sitemaps inappropriate call."""
         us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
         httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
@@ -109,15 +88,9 @@ class TestSiteMapper:
         url_set: UrlSet = sm.get_urls()
         assert len(list(url_set)) == amount_of_urls
 
-    def test_get_urls_inappropriate_call(
-        self: TestSiteMapper,
-        httpx_mock: HTTPXMock,
-    ) -> None:
+    def test_get_urls_inappropriate_call(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
         """Test get_urls inappropriate call."""
-        smi_data: bytes = Path.open(
-            Path("tests/sitemap_index_data.xml"),
-            "rb",
-        ).read()
+        smi_data: bytes = Path.open(Path("tests/sitemap_index_data.xml"), "rb").read()
         httpx_mock.add_response(url="http://www.sitemap-example.com", content=smi_data)
         smi = SiteMapParser("http://www.sitemap-example.com")
         with pytest.raises(KeyError):
@@ -125,10 +98,7 @@ class TestSiteMapper:
 
     def test_has_sitemaps(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
         """Test has_sitemaps."""
-        smi_data: bytes = Path.open(
-            Path("tests/sitemap_index_data.xml"),
-            "rb",
-        ).read()
+        smi_data: bytes = Path.open(Path("tests/sitemap_index_data.xml"), "rb").read()
         httpx_mock.add_response(url="http://www.sitemap-example.com", content=smi_data)
         sm = SiteMapParser("http://www.sitemap-example.com")
         assert sm.has_sitemaps() is True
@@ -142,10 +112,7 @@ class TestSiteMapper:
         assert sm.has_urls() is True
         assert sm.has_sitemaps() is False
 
-    def test_get_urls_multiple_iters(
-        self: TestSiteMapper,
-        httpx_mock: HTTPXMock,
-    ) -> None:
+    def test_get_urls_multiple_iters(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
         """Test get_urls multiple iters."""
         us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
         httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
@@ -157,15 +124,9 @@ class TestSiteMapper:
         assert str(next(urls_1)) == "http://www.example.com/page/a/2"
         assert str(next(urls_1)) == "http://www.example.com/page/a/3"
 
-    def test_get_sitemaps_multiple_iters(
-        self: TestSiteMapper,
-        httpx_mock: HTTPXMock,
-    ) -> None:
+    def test_get_sitemaps_multiple_iters(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
         """Test get_sitemaps multiple iters."""
-        us_data: bytes = Path.open(
-            Path("tests/sitemap_index_data.xml"),
-            "rb",
-        ).read()
+        us_data: bytes = Path.open(Path("tests/sitemap_index_data.xml"), "rb").read()
         httpx_mock.add_response(url="http://www.url-example.com", content=us_data)
         sm = SiteMapParser("http://www.url-example.com")
         sm_1: Iterator[Sitemap] = iter(sm.get_sitemaps())

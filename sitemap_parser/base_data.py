@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from dateutil import parser
@@ -9,6 +10,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 
+@dataclass(slots=True)
 class BaseData:
     """Base class for sitemap data.
 
@@ -16,10 +18,8 @@ class BaseData:
     such as location (`loc`) and last modified time (`lastmod`).
     """
 
-    def __init__(self) -> None:
-        """Initialize a new instance of BaseData."""
-        self._lastmod: datetime | None = None
-        self._loc: str | None = None
+    _lastmod: datetime | None = field(default=None, init=False)
+    _loc: str | None = field(default=None, init=False)
 
     @property
     def lastmod(self) -> datetime | None:

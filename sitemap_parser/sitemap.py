@@ -4,39 +4,39 @@ from .base_data import BaseData
 
 
 class Sitemap(BaseData):
-    """Representation of the <sitemap> element.
-
-    Args:
-        BaseData: Base class for all data classes.
-
-    Returns:
-        Sitemap instance
-    """
+    """Representation of the <sitemap> element."""
 
     fields = "loc", "lastmod"
 
-    def __init__(self: Sitemap, loc: str, lastmod: str | None = None) -> None:
+    def __init__(self, loc: str, lastmod: str | None = None) -> None:
         """Representation of the <sitemap> element.
 
         Args:
             loc: String, URL of the page.
-            lastmod: DateTime, The date of last modification of the file.
+            lastmod: str | None, The date of last modification of the file.
         """
         self.loc = loc
         self.lastmod = lastmod
 
-    def __str__(self: Sitemap) -> str | None:
+    def __str__(self) -> str:
+        """String representation of the Sitemap instance.
+
+        Raises:
+            ValueError: If loc is None.
+
+        Returns:
+            The URL of the page.
+        """
+        if self.loc is None:
+            msg = "loc cannot be None"
+            raise ValueError(msg)
+
+        return self.loc
+
+    def __repr__(self) -> str:
         """String representation of the Sitemap instance.
 
         Returns:
-            String
-        """
-        return self.loc
-
-    def __repr__(self: Sitemap) -> str:
-        """Representation of the Sitemap instance.
-
-        Returns:
-            String
+            The URL of the page.
         """
         return f"<Sitemap {self.loc}>"

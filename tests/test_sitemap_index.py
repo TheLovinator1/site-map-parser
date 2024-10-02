@@ -37,9 +37,7 @@ class TestSitemapIndex:
         Args:
             self: TestSitemapIndex
         """
-        sm: Sitemap = SitemapIndex.sitemap_from_sitemap_element(
-            self.sitemap_index_element_xml,
-        )
+        sm: Sitemap = SitemapIndex.sitemap_from_sitemap_element(self.sitemap_index_element_xml)
         assert isinstance(sm, Sitemap)
         assert sm.loc == "http://www.example.com/sitemap_a.xml"
         assert type(sm.lastmod) is datetime
@@ -52,11 +50,7 @@ class TestSitemapIndex:
             self: TestSitemapIndex
         """
         amount_of_sitemaps: int = len(self.sitemap_index_xml_root)
-        si: Generator[
-            Sitemap,
-            Any,
-            None,
-        ] = SitemapIndex.sitemaps_from_sitemap_index_element(
+        si: Generator[Sitemap, Any, None] = SitemapIndex.sitemaps_from_sitemap_index_element(
             self.sitemap_index_xml_root,
         )
         assert len(list(si)) == amount_of_sitemaps

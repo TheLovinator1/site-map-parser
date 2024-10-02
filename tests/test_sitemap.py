@@ -10,10 +10,7 @@ class TestSitemap:
 
     def test_init(self: TestSitemap) -> None:
         """Test Sitemap.__init__."""
-        s = Sitemap(
-            loc="http://www.example.com/index.html",
-            lastmod="2004-10-01T18:24:19+00:00",
-        )
+        s = Sitemap(loc="http://www.example.com/index.html", lastmod="2004-10-01T18:24:19+00:00")
 
         assert s.loc == "http://www.example.com/index.html"
         assert type(s.lastmod) is datetime
@@ -25,8 +22,5 @@ class TestSitemap:
         Args:
             self: TestSitemap
         """
-        s = Sitemap(
-            loc="http://www.example.com/index.html",
-            lastmod="2004-10-01T18:24:19+00:00",
-        )
+        s = Sitemap(loc="http://www.example.com/index.html", lastmod="2004-10-01T18:24:19+00:00")
         assert str(s) == "http://www.example.com/index.html"

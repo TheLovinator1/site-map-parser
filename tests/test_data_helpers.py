@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from sitemap_parser.data_helpers import data_to_element, download_uri_data
+from sitemap_parser.data_helpers import bytes_to_element, download_uri_data
 
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
@@ -42,7 +42,7 @@ def test_download_uri_data_urlset(httpx_mock: HTTPXMock) -> None:
 def test_data_to_element_sitemap_index() -> None:
     """Test data_to_element() with a sitemap index."""
     smi_data: bytes = Path.open(Path("tests/sitemap_index_data.xml"), "rb").read()
-    root_element: Element = data_to_element(smi_data)
+    root_element: Element = bytes_to_element(smi_data)
     assert len(root_element.xpath("/*[local-name()='sitemapindex']")) == 1  # type: ignore  # noqa: PGH003
     assert len(root_element.xpath("/*[local-name()='urlset']")) == 0  # type: ignore  # noqa: PGH003
 
@@ -54,7 +54,7 @@ def test_data_to_element_sitemap_index_broken() -> None:
         "rb",
     ).read()
     with pytest.raises(SyntaxError):
-        data_to_element(smi_data)
+        bytes_to_element(smi_data)
     # assert len(root_element.xpath("/*[local-name()='sitemapindex']")) == 1
     # assert len(root_element.xpath("/*[local-name()='urlset']")) == 0
 
@@ -62,6 +62,6 @@ def test_data_to_element_sitemap_index_broken() -> None:
 def test_data_to_element_urlset() -> None:
     """Test data_to_element() with a urlset."""
     us_data: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
-    root_element: Element = data_to_element(us_data)
+    root_element: Element = bytes_to_element(us_data)
     assert len(root_element.xpath("/*[local-name()='sitemapindex']")) == 0  # type: ignore  # noqa: PGH003
     assert len(root_element.xpath("/*[local-name()='urlset']")) == 1  # type: ignore  # noqa: PGH003

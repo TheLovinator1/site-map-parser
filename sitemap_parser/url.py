@@ -4,6 +4,10 @@ from typing import Literal
 
 from .base_data import BaseData
 
+Freqs = Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"]
+ValidFreqs = tuple[Freqs, Freqs, Freqs, Freqs, Freqs, Freqs, Freqs]
+Fields = tuple[Literal["loc"], Literal["lastmod"], Literal["changefreq"], Literal["priority"]]
+
 
 class Url(BaseData):
     """Representation of the <url> element.
@@ -12,28 +16,12 @@ class Url(BaseData):
         BaseData: Base class for all data classes
 
     Raises:
-        ValueError: _description_
-        ValueError: _description_
-
-    Returns:
-        _description_
+        ValueError: If `changefreq` is not an allowed value.
+        ValueError: If `priority` is not between 0.0 and 1.0.
     """
 
-    fields: tuple[
-        Literal["loc"],
-        Literal["lastmod"],
-        Literal["changefreq"],
-        Literal["priority"],
-    ] = "loc", "lastmod", "changefreq", "priority"
-    valid_freqs: tuple[
-        Literal["always"],
-        Literal["hourly"],
-        Literal["daily"],
-        Literal["weekly"],
-        Literal["monthly"],
-        Literal["yearly"],
-        Literal["never"],
-    ] = ("always", "hourly", "daily", "weekly", "monthly", "yearly", "never")
+    fields: Fields = ("loc", "lastmod", "changefreq", "priority")
+    valid_freqs: ValidFreqs = ("always", "hourly", "daily", "weekly", "monthly", "yearly", "never")
 
     def __init__(
         self: Url,
@@ -45,7 +33,6 @@ class Url(BaseData):
         """Creates a Url instance.
 
         Args:
-            self: The Url instance
             loc: Location.
             lastmod: Last modified.
             changefreq: Change frequency.
@@ -57,9 +44,7 @@ class Url(BaseData):
         self.priority = priority
 
     @property
-    def changefreq(
-        self: Url,
-    ) -> Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"] | None:
+    def changefreq(self: Url) -> Freqs | None:
         """Get changefreq."""
         return self._changefreq
 
@@ -75,18 +60,13 @@ class Url(BaseData):
             ValueError: Value is not an allowed value
         """
         if frequency is not None and frequency not in Url.valid_freqs:
-            error_msg = "'{}' is not an allowed value: {}"
-            raise ValueError(error_msg.format(frequency, Url.valid_freqs))
-        self._changefreq: Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"] | None = (
-            frequency
-        )
+            msg: str = f"'{frequency}' is not an allowed value: {Url.valid_freqs}"
+            raise ValueError(msg)
+        self._changefreq: Freqs | None = frequency
 
     @property
     def priority(self: Url) -> float | None:
         """Get priority.
-
-        Args:
-            self: The Url instance
 
         Returns:
             Priority
@@ -101,16 +81,13 @@ class Url(BaseData):
             min_value = 0.0
             max_value = 1.0
             if priority < min_value or priority > max_value:
-                msg = "'{}' is not between 0.0 and 1.0"
+                msg: str = f"'{priority}' is not between 0.0 and 1.0"
                 raise ValueError(msg)
 
         self._priority: float | None = priority
 
     def __str__(self: Url) -> str:
         """Return a string representation of the Url instance.
-
-        Args:
-            self: The Url instance
 
         Returns:
             String representation of the Url instance
@@ -119,9 +96,6 @@ class Url(BaseData):
 
     def __repr__(self: Url) -> str:
         """Return a string representation of the Url instance.
-
-        Args:
-            self: The Url instance
 
         Returns:
             String representation of the Url instance

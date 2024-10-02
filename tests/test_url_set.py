@@ -21,10 +21,7 @@ class TestUrlSet:
         """Setup for TestUrlSet."""
         url_set_data_bytes: bytes = Path.open(Path("tests/urlset_a.xml"), "rb").read()
         utf8_parser = etree.XMLParser(encoding="utf-8")
-        self.url_set_data_xml = etree.parse(
-            BytesIO(url_set_data_bytes),
-            parser=utf8_parser,
-        )
+        self.url_set_data_xml = etree.parse(BytesIO(url_set_data_bytes), parser=utf8_parser)
         self.url_set_element = self.url_set_data_xml.getroot()
         self.url_element_1 = self.url_set_data_xml.getroot()[0]
         self.url_element_2 = self.url_set_data_xml.getroot()[1]
@@ -32,10 +29,7 @@ class TestUrlSet:
         # custom element handling
         custom_ele_file = "tests/urlset_a_custom_element.xml"
         url_set_custom_ele_bytes: bytes = Path.open(Path(custom_ele_file), "rb").read()
-        self.url_set_data_custom_xml = etree.parse(
-            BytesIO(url_set_custom_ele_bytes),
-            parser=utf8_parser,
-        )
+        self.url_set_data_custom_xml = etree.parse(BytesIO(url_set_custom_ele_bytes), parser=utf8_parser)
         self.url_set_custom_element = self.url_set_data_custom_xml.getroot()
         self.url_element_3 = self.url_set_data_custom_xml.getroot()[0]
 
@@ -81,9 +75,7 @@ class TestUrlSet:
             self: TestUrlSet
         """
         amount_of_urls: int = len(self.url_set_element)
-        urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(
-            self.url_set_element,
-        )
+        urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(self.url_set_element)
         assert len(list(urls)) == amount_of_urls
 
     def test_urls_from_url_set_custom_element(self: TestUrlSet) -> None:
@@ -92,9 +84,7 @@ class TestUrlSet:
         Args:
             self: TestUrlSet
         """
-        urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(
-            self.url_set_custom_element,
-        )
+        urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(self.url_set_custom_element)
         assert len(list(urls)) == 1
 
     def test_init(self: TestUrlSet) -> None:

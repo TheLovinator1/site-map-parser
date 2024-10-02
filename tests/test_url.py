@@ -83,9 +83,9 @@ class TestUrl:
         u.priority = priority10
         assert u.priority == priority10
 
-        with pytest.raises(ValueError, match="'{}' is not between 0.0 and 1.0"):
+        with pytest.raises(ValueError, match="'1.1' is not between 0.0 and 1.0"):
             u.priority = 1.1  # Max is 1.0
-        with pytest.raises(ValueError, match="'{}' is not between 0.0 and 1.0"):
+        with pytest.raises(ValueError, match="'-0.1' is not between 0.0 and 1.0"):
             u.priority = -0.1  # Min is 0.0
 
     def test_str(self: TestUrl) -> None:

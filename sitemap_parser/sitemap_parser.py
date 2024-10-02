@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
+from xml.etree.ElementTree import Element
 
 from loguru import logger
 
-from .data_helpers import data_to_element, download_uri_data
+from .data_helpers import bytes_to_element, download_uri_data
 from .sitemap_index import SitemapIndex
 from .url_set import UrlSet
 
@@ -12,30 +14,32 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
 
+@dataclass(slots=True)
 class SiteMapParser:
     """Parses a sitemap or sitemap index and returns the appropriate object."""
 
-    def __init__(self: SiteMapParser, uri: str) -> None:
-        """Creates a SiteMapParser instance.
+    uri: str
+    is_sitemap_index: bool = field(init=False)
+    _sitemaps: SitemapIndex | None = field(init=False, default=None)
+    _url_set: UrlSet | None = field(init=False, default=None)
 
-        Args:
-            uri: The uri to parse
-        """
-        data: bytes = download_uri_data(uri)
-        root_element: Element = data_to_element(data)
+    def __post_init__(self) -> None:
+        """Post-initialization processing."""
+        data = download_uri_data(self.uri)
+        root_element = bytes_to_element(data)
 
-        self.is_sitemap_index: bool = self._is_sitemap_index_element(root_element)
+        self.is_sitemap_index = self._is_sitemap_index_element(root_element)
 
         if self.is_sitemap_index:
             logger.info("Root element is sitemap index")
-            self._sitemaps = SitemapIndex(root_element)
+            self._sitemaps = SitemapIndex(index_element=root_element)
         else:
             logger.info("Root element is url set")
-            self._url_set = UrlSet(root_element)
+            self._url_set = UrlSet(urlset_element=root_element)
 
     @staticmethod
     def _is_sitemap_index_element(element: Element) -> bool:
-        """Determine if the element is a <sitemapindex>.
+        """Determine if the element is a sitemapindex.
 
         Args:
             element: The element to check
@@ -57,7 +61,7 @@ class SiteMapParser:
         """
         return bool(len(element.xpath("/*[local-name()='urlset']")))  # type: ignore[attr-defined]
 
-    def get_sitemaps(self: SiteMapParser) -> SitemapIndex:
+    def get_sitemaps(self) -> SitemapIndex:
         """Retrieve the sitemaps.
 
         Can check if 'has_sitemaps()' returns True to determine
@@ -70,15 +74,20 @@ class SiteMapParser:
             KeyError: If the root is not a <sitemapindex>
 
         Returns:
-            iter(Sitemap)
+            SitemapIndex
         """
         if not self.has_sitemaps():
             error_msg = "Method called when root is not a <sitemapindex>"
             logger.critical(error_msg)
             raise KeyError(error_msg)
+
+        if self._sitemaps is None:
+            msg = "Sitemaps are not available"
+            raise KeyError(msg)
+
         return self._sitemaps
 
-    def get_urls(self: SiteMapParser) -> UrlSet:
+    def get_urls(self) -> UrlSet:
         """Retrieve the urls.
 
         Args:
@@ -88,15 +97,20 @@ class SiteMapParser:
             KeyError: If the root is not a <urlset>
 
         Returns:
-            iter(Url)
+            UrlSet
         """
         if not self.has_urls():
             error_msg = "Method called when root is not a <urlset>"
             logger.critical(error_msg)
             raise KeyError(error_msg)
+
+        if self._url_set is None:
+            msg = "URLs are not available"
+            raise KeyError(msg)
+
         return self._url_set
 
-    def has_sitemaps(self: SiteMapParser) -> bool:
+    def has_sitemaps(self) -> bool:
         """Determine if the URL's data contained sitemaps.
 
         A sitemap can contain other sitemaps. For example: <https://www.webhallen.com/sitemap.xml>
@@ -109,7 +123,7 @@ class SiteMapParser:
         """
         return self.is_sitemap_index
 
-    def has_urls(self: SiteMapParser) -> bool:
+    def has_urls(self) -> bool:
         """Determine if the URL's data contained urls.
 
         Args:
@@ -120,15 +134,13 @@ class SiteMapParser:
         """
         return not self.is_sitemap_index
 
-    def __str__(self: SiteMapParser) -> str:
+    def __str__(self) -> str:
         """String representation of the SiteMapParser instance.
 
         Args:
             self: The SiteMapParser instance
 
         Returns:
-            String
+            str
         """
-        if self.has_sitemaps():
-            return str(self._sitemaps)
-        return str(self._url_set)
+        return str(self._sitemaps if self.has_sitemaps() else self._url_set)
