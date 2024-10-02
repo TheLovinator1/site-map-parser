@@ -2,16 +2,10 @@ from __future__ import annotations
 
 import json
 import sys
-from typing import TYPE_CHECKING
 
 from loguru import logger
 
-from sitemap_parser.exporter import JSONExporter
-from sitemap_parser.sitemap_parser import SiteMapParser
-
-if TYPE_CHECKING:
-    from sitemap_parser.sitemap_index import SitemapIndex
-    from sitemap_parser.url_set import UrlSet
+from sitemap_parser import JSONExporter, SitemapIndex, SiteMapParser, UrlSet
 
 # Set Loguru logger level to INFO
 logger.remove()
