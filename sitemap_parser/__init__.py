@@ -1,3 +1,68 @@
+"""This program parses sitemap and sitemap index files from a given URL and exports the data in JSON format.
+
+The program supports both XML sitemaps (containing URLs) and sitemap indexes (containing links to other sitemaps).
+
+## Running the Program
+
+To run the program, follow these steps:
+
+1. **Install Dependencies**:
+    Ensure you have all the required dependencies installed. You can install them via pip:
+
+    ```bash
+    poetry add git+https://github.com/TheLovinator1/sitemap-parser.git
+    pip install git+https://github.com/TheLovinator1/sitemap-parser.git
+    ```
+
+2. **Import the Classes**:
+    Import the necessary classes to use the SiteMapParser and JSONExporter.
+
+    ```python
+    from sitemap_parser import SiteMapParser, JSONExporter
+    ```
+
+3. **Create a SiteMapParser Instance**:
+    Create an instance of `SiteMapParser`, passing the sitemap URL as an argument.
+
+Example:
+    ```python
+    sitemap_url = "https://example.com/sitemap.xml"
+    parser = SiteMapParser(sitemap_url)
+    ```
+
+4. **Retrieve Sitemaps or URLs**:
+    Depending on the type of sitemap (sitemap or sitemap index), use the appropriate method to extract the data:
+
+    - To retrieve sitemaps (if it is a sitemap index):
+
+      ```python
+      sitemaps = parser.get_sitemaps()
+      ```
+
+    - To retrieve URLs (if it is a URL set):
+
+      ```python
+      urls = parser.get_urls()
+      ```
+
+5. **Export Data to JSON**:
+    Use the `JSONExporter` class to export the retrieved sitemaps or URLs to JSON format:
+
+Example:
+    ```python
+    exporter = JSONExporter(parser)
+    json_sitemaps = exporter.export_sitemaps()
+    json_urls = exporter.export_urls()
+
+    print(json_sitemaps)  # JSON representation of sitemaps
+    print(json_urls)      # JSON representation of URLs
+    ```
+
+6. **Additional Configuration**:
+    - **Caching**: You can enable or disable caching by passing `should_cache=False` to the `SiteMapParser` constructor.
+    - **Logging**: Logging messages will help track the progress and any issues encountered during execution.
+"""
+
 from __future__ import annotations
 
 import re
