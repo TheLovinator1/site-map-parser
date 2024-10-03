@@ -70,44 +70,6 @@ def get_urls() -> None:
         """
 ```
 
-### JSON Exporter
-
-You can also export the sitemap to JSON:
-
-```python
-def get_json() -> None:
-    sm = SiteMapParser("https://www.webhallen.com/sitemap.article.xml")
-    json_exporter = JSONExporter(sm)
-    if sm.has_sitemaps():
-        # Note: This will not be triggered in this example since the sitemap
-        # does not have any sitemaps.
-        sitemaps_json: str = json_exporter.export_sitemaps()
-        logger.info(f"{sitemaps_json=}")
-
-    elif sm.has_urls():
-        urls_json: str = json_exporter.export_urls()
-        urls_json = json.loads(urls_json)
-        logger.info(json.dumps(urls_json, indent=4))
-        # Result:
-        """
-        [
-            {
-                "loc": "https://www.webhallen.com/se/article/2-Covid-19-Butiksatgarder",
-                "lastmod": null,
-                "changefreq": null,
-                "priority": 0.3
-            },
-            {
-                "loc": "https://www.webhallen.com/se/article/4-Tre-enkla-steg-for-ett-smart-hem",
-                "lastmod": null,
-                "changefreq": null,
-                "priority": 0.3
-            },
-            ... truncated ...
-        ]
-        """
-```
-
 ### Contributing
 
 Feel free to contribute to this project by creating a pull request or an issue.

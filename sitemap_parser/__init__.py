@@ -1,4 +1,4 @@
-"""This program parses sitemap and sitemap index files from a given URL and exports the data in JSON format.
+"""This program parses sitemap and sitemap index files from a given URL.
 
 The program supports both XML sitemaps (containing URLs) and sitemap indexes (containing links to other sitemaps).
 
@@ -15,10 +15,10 @@ To run the program, follow these steps:
     ```
 
 2. **Import the Classes**:
-    Import the necessary classes to use the SiteMapParser and JSONExporter.
+    Import the necessary classes to use the SiteMapParser.
 
     ```python
-    from sitemap_parser import SiteMapParser, JSONExporter
+    from sitemap_parser import SiteMapParser
     ```
 
 3. **Create a SiteMapParser Instance**:
@@ -45,31 +45,15 @@ Example:
       urls = parser.get_urls()
       ```
 
-5. **Export Data to JSON**:
-    Use the `JSONExporter` class to export the retrieved sitemaps or URLs to JSON format:
-
-Example:
-    ```python
-    exporter = JSONExporter(parser)
-    json_sitemaps = exporter.export_sitemaps()
-    json_urls = exporter.export_urls()
-
-    print(json_sitemaps)  # JSON representation of sitemaps
-    print(json_urls)      # JSON representation of URLs
-    ```
-
 6. **Additional Configuration**:
     - **Caching**: You can enable or disable caching by passing `should_cache=False` to the `SiteMapParser` constructor.
-    - **Logging**: Logging messages will help track the progress and any issues encountered during execution.
 """
 
 from __future__ import annotations
 
 import re
 import typing
-from datetime import datetime
 from io import BytesIO
-from json import dumps
 from pathlib import Path
 from typing import Any, Literal
 from xml.etree.ElementTree import Element
@@ -82,9 +66,10 @@ from lxml import etree
 
 if typing.TYPE_CHECKING:
     from collections.abc import Generator, Iterator
+    from datetime import datetime
     from xml.etree.ElementTree import Element
 
-__all__: list[str] = ["JSONExporter", "SiteMapParser", "Sitemap", "SitemapIndex", "Url", "UrlSet"]
+__all__: list[str] = ["SiteMapParser", "Sitemap", "SitemapIndex", "Url", "UrlSet"]
 
 
 Freqs = Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"]
@@ -274,60 +259,6 @@ class Sitemap(BaseData):
             The URL of the page.
         """
         return f"<Sitemap {self.loc}>"
-
-
-class JSONExporter:
-    """Export site map data to JSON format."""
-
-    def __init__(self, data: SiteMapParser) -> None:
-        """Initializes the JSONExporter instance with the site map data."""
-        self.data: SiteMapParser = data
-
-    @staticmethod
-    def _collate(fields: SitemapFields | UrlFields, row_data: SitemapIndex | UrlSet) -> list[dict[str, Any]]:
-        """Collate data from SitemapIndex or UrlSet into a list of dictionaries.
-
-        Args:
-            fields (tuple): A tuple of field names to extract from each Sitemap or Url object.
-            row_data (SitemapIndex | UrlSet): An iterable containing Sitemap or Url objects.
-
-        Returns:
-            list: A list of dictionaries where each dictionary represents a Sitemap or Url object.
-        """
-        dump_data: list[dict[str, Any]] = []
-        for sm in row_data:
-            row: dict[str, Any] = {}
-            for fld in fields:
-                v = getattr(sm, fld)
-                row[fld] = v if not isinstance(v, datetime) else v.isoformat()
-            dump_data.append(row)
-        return dump_data
-
-    def export_sitemaps(self) -> str:
-        """Export site map data to JSON format.
-
-        Returns:
-            JSON data as a string
-        """
-        try:
-            sitemap_fields: SitemapFields = getattr(Sitemap, "fields", ("loc", "lastmod"))  # Default fields
-        except AttributeError:
-            sitemap_fields: SitemapFields = ("loc", "lastmod")  # Default fields
-
-        return dumps(self._collate(sitemap_fields, self.data.get_sitemaps()))
-
-    def export_urls(self) -> str:
-        """Export site map data to JSON format.
-
-        Returns:
-            JSON data as a string
-        """
-        try:
-            url_fields: UrlFields = getattr(Url, "fields", ("loc", "lastmod", "changefreq", "priority"))
-        except AttributeError:
-            url_fields: UrlFields = ("loc", "lastmod", "changefreq", "priority")  # Default fields
-
-        return dumps(self._collate(url_fields, self.data.get_urls()))
 
 
 class Url(BaseData):
