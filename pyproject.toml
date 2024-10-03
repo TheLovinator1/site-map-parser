@@ -49,10 +49,12 @@ lint.ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**/*.py" = [
-  "S101",    # asserts allowed in tests...
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
+  "D103",
   "FBT",     # Don't care about booleans as positional arguments in tests, e.g. via @pytest.mark.parametrize()
+  "PLR2004",
   "PLR6301",
+  "S101",    # asserts allowed in tests...
 ]
 
 [tool.pytest.ini_options]

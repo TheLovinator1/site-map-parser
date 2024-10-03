@@ -1,54 +1,3 @@
-"""This program parses sitemap and sitemap index files from a given URL.
-
-The program supports both XML sitemaps (containing URLs) and sitemap indexes (containing links to other sitemaps).
-
-## Running the Program
-
-To run the program, follow these steps:
-
-1. **Install Dependencies**:
-    Ensure you have all the required dependencies installed. You can install them via pip:
-
-    ```bash
-    poetry add git+https://github.com/TheLovinator1/sitemap-parser.git
-    pip install git+https://github.com/TheLovinator1/sitemap-parser.git
-    ```
-
-2. **Import the Classes**:
-    Import the necessary classes to use the SiteMapParser.
-
-    ```python
-    from sitemap_parser import SiteMapParser
-    ```
-
-3. **Create a SiteMapParser Instance**:
-    Create an instance of `SiteMapParser`, passing the sitemap URL as an argument.
-
-Example:
-    ```python
-    sitemap_url = "https://example.com/sitemap.xml"
-    parser = SiteMapParser(sitemap_url)
-    ```
-
-4. **Retrieve Sitemaps or URLs**:
-    Depending on the type of sitemap (sitemap or sitemap index), use the appropriate method to extract the data:
-
-    - To retrieve sitemaps (if it is a sitemap index):
-
-      ```python
-      sitemaps = parser.get_sitemaps()
-      ```
-
-    - To retrieve URLs (if it is a URL set):
-
-      ```python
-      urls = parser.get_urls()
-      ```
-
-6. **Additional Configuration**:
-    - **Caching**: You can enable or disable caching by passing `should_cache=False` to the `SiteMapParser` constructor.
-"""
-
 from __future__ import annotations
 
 import re
@@ -484,24 +433,32 @@ class SitemapIndex:
 class SiteMapParser:
     """Parses a sitemap or sitemap index and returns the appropriate object."""
 
-    def __init__(self, uri: str, *, should_cache: bool = True, cache_dir: Path = Path(".cache")) -> None:
+    def __init__(
+        self,
+        source: str,
+        *,
+        is_data_string: bool = False,
+        should_cache: bool = True,
+        cache_dir: Path = Path(".cache"),
+    ) -> None:
         """Initialize the SiteMapParser instance with the URI.
 
-        The URI is expected to be a sitemap or sitemap index. The parser will determine which type of object it is.
-        The object can be retrieved using the `get_sitemaps` or `get_urls` methods. The `has_sitemaps` and `has_urls`
-        methods can be used to determine which method to call.
+        The source can be a URL or a raw XML string. The parser will determine
+        whether to download the data or use the provided string.
 
         Args:
-            uri: The URI of the sitemap or sitemap index.
+            source: The URL of the sitemap or raw XML string.
+            is_data_string: Whether the source is a raw XML string or not.
             should_cache: Whether to cache the request with Hishel (https://hishel.com/) or not.
             cache_dir: The directory to store the cached data.
         """
-        self.uri: str = uri
+        self.source: str = source
         self.is_sitemap_index: bool = False
         self._sitemaps: SitemapIndex | None = None
         self._url_set: UrlSet | None = None
         self._should_cache: bool = should_cache
         self._cache_dir: Path = cache_dir
+        self._is_data_string: bool = is_data_string
         self._initialize()
 
     @staticmethod
@@ -538,11 +495,16 @@ class SiteMapParser:
         """Initialization processing."""
         self._cache_dir.mkdir(parents=True, exist_ok=True)
 
-        data: bytes = download_uri_data(
-            uri=self.uri,
-            hishel_client=self.get_hishel_client(),
-            should_cache=self._should_cache,
-        )
+        # Determine if we're using raw XML data or downloading from a URL
+        if self._is_data_string:
+            data: bytes = self.source.encode("utf-8")
+        else:
+            data: bytes = download_uri_data(
+                uri=self.source,
+                hishel_client=self.get_hishel_client(),
+                should_cache=self._should_cache,
+            )
+
         root_element: Element = bytes_to_element(data=data)
 
         self.is_sitemap_index = self._is_sitemap_index_element(root_element)

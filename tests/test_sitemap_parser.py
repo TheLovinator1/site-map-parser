@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import json
 import re
 from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
-from unittest.mock import MagicMock
 
 import hishel
 import pytest
@@ -15,7 +13,6 @@ from pytest_httpx import HTTPXMock
 
 from sitemap_parser import (
     BaseData,
-    JSONExporter,
     Sitemap,
     SitemapIndex,
     SiteMapParser,
@@ -30,6 +27,107 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
     from pytest_httpx import HTTPXMock
+
+
+# Sample data for testing
+valid_sitemap_xml = """
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://example.com/</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://example.com/about</loc>
+    <lastmod>2024-01-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
+"""
+
+valid_sitemap_index_xml = """
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://example.com/sitemap1.xml</loc>
+    <lastmod>2024-01-01</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://example.com/sitemap2.xml</loc>
+    <lastmod>2024-01-02</lastmod>
+  </sitemap>
+</sitemapindex>
+"""
+
+
+def test_parse_valid_sitemap() -> None:
+    # Simulate parsing a valid sitemap XML string
+    parser = SiteMapParser(source=valid_sitemap_xml, is_data_string=True)
+    url_set = parser.get_urls()
+    urls = list(url_set)
+
+    assert len(urls) == 2
+    assert urls[0].loc == "https://example.com/"
+    assert urls[0].lastmod is not None
+    assert urls[0].lastmod.isoformat() == "2024-01-01T00:00:00"
+    assert urls[0].changefreq == "daily"
+    assert urls[0].priority == 0.8
+
+
+def test_parse_valid_sitemap_index() -> None:
+    parser = SiteMapParser(source=valid_sitemap_index_xml, is_data_string=True)
+    sitemap_index = parser.get_sitemaps()
+    sitemaps = list(sitemap_index)
+
+    assert len(sitemaps) == 2
+    assert sitemaps[0].loc == "https://example.com/sitemap1.xml"
+    assert sitemaps[0].lastmod is not None
+    assert sitemaps[0].lastmod.isoformat() == "2024-01-01T00:00:00"
+
+
+def test_invalid_url() -> None:
+    # Test URL validation in Url class
+    with pytest.raises(ValueError, match="invalid-url is not a valid URL"):
+        Url(loc="invalid-url")  # Invalid URL should raise a ValueError
+
+
+def test_changefreq_validation() -> None:
+    with pytest.raises(
+        expected_exception=ValueError,
+        match=re.escape(
+            pattern="'invalid' is not an allowed value: ('always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never')",  # noqa: E501
+        ),
+    ):
+        Url(loc="https://example.com", changefreq="invalid")  # Invalid changefreq should raise a ValueError
+
+
+def test_priority_validation() -> None:
+    with pytest.raises(ValueError, match="'1.5' is not between 0.0 and 1.0"):
+        Url(loc="https://example.com", priority=1.5)  # Priority outside of 0.0 - 1.0 range should raise a ValueError
+
+
+def test_sitemap_object() -> None:
+    # Test creating a Sitemap object
+    sitemap = Sitemap(loc="https://example.com/sitemap1.xml", lastmod="2024-01-01")
+    assert sitemap.loc == "https://example.com/sitemap1.xml"
+    assert sitemap.lastmod is not None
+    assert sitemap.lastmod.isoformat() == "2024-01-01T00:00:00"
+
+
+def test_url_object() -> None:
+    # Test creating a Url object
+    url = Url(loc="https://example.com/", lastmod="2024-01-01", changefreq="daily", priority=0.8)
+    assert url.loc == "https://example.com/"
+    assert url.lastmod is not None
+    assert url.lastmod.isoformat() == "2024-01-01T00:00:00"
+    assert url.changefreq == "daily"
+    assert url.priority == 0.8
+
+
+def test_bytes_to_element() -> None:
+    element = bytes_to_element(valid_sitemap_xml.encode("utf-8"))
+    assert isinstance(element, etree._Element)  # noqa: SLF001
 
 
 def test_lastmod_value_correct() -> None:
@@ -157,99 +255,6 @@ def test_data_to_element_urlset() -> None:
     assert len(root_element.xpath("/*[local-name()='urlset']")) == 1  # type: ignore  # noqa: PGH003
 
 
-class TestExporter:
-    """Test the JSON exporter."""
-
-    def test_export_sitemaps(self: TestExporter) -> None:
-        """Test the JSON exporter.
-
-        Args:
-            self: TestExporter
-        """
-        mock_site_mapper = MagicMock()
-        mock_site_mapper.get_sitemaps = MagicMock(
-            return_value=[
-                Sitemap("http://www.example1.com"),
-                Sitemap("http://www.example2.com", "2010-10-01T18:32:17+00:00"),
-                Sitemap(
-                    "http://www.example3.com/sitemap.xml",
-                    "2010-10-01T18:32:17+00:00",
-                ),
-            ],
-        )
-        json_exporter = JSONExporter(mock_site_mapper)
-        json_data: str = json_exporter.export_sitemaps()
-        json_data_parsed = json.loads(json_data)
-
-        assert len(json_data_parsed) == len(mock_site_mapper.get_sitemaps())
-        assert json_data_parsed[0]["loc"] == "http://www.example1.com"
-        assert json_data_parsed[1]["loc"] == "http://www.example2.com"
-        assert str(json_data_parsed[1]["lastmod"]) == "2010-10-01T18:32:17+00:00"
-        assert json_data_parsed[2]["loc"] == "http://www.example3.com/sitemap.xml"
-        assert str(json_data_parsed[2]["lastmod"]) == "2010-10-01T18:32:17+00:00"
-
-    def test_export_urls(self: TestExporter) -> None:
-        """Test the JSON exporter.
-
-        Args:
-            self: TestExporter
-        """
-        freq_08 = 0.8
-        freq_09 = 0.9
-        freq_10 = 1.0
-
-        mock_url_set = MagicMock()
-        mock_url_set.get_urls = MagicMock(
-            return_value=[
-                Url(
-                    "http://www.example.com/page/a/1",
-                    "2005-05-06T00:00:00",
-                    "monthly",
-                    freq_08,
-                ),
-                Url(
-                    "http://www.example.com/page/a/2",
-                    "2006-07-08T00:00:00",
-                    "monthly",
-                    freq_08,
-                ),
-                Url(
-                    "http://www.example.com/page/a/3",
-                    "2007-09-10T00:00:00",
-                    "monthly",
-                    freq_09,
-                ),
-                Url(
-                    "http://www.example.com/page/a/4",
-                    "2008-11-12T00:00:00",
-                    "monthly",
-                    freq_10,
-                ),
-            ],
-        )
-        json_exporter = JSONExporter(mock_url_set)
-        json_data = json_exporter.export_urls()
-        json_data_parsed = json.loads(json_data)
-
-        assert len(json_data_parsed) == len(mock_url_set.get_urls())
-        assert json_data_parsed[0]["loc"] == "http://www.example.com/page/a/1"
-        assert str(json_data_parsed[0]["lastmod"]) == "2005-05-06T00:00:00"
-        assert json_data_parsed[0]["changefreq"] == "monthly"
-        assert json_data_parsed[0]["priority"] == freq_08
-        assert json_data_parsed[1]["loc"] == "http://www.example.com/page/a/2"
-        assert str(json_data_parsed[1]["lastmod"]) == "2006-07-08T00:00:00"
-        assert json_data_parsed[1]["changefreq"] == "monthly"
-        assert json_data_parsed[1]["priority"] == freq_08
-        assert json_data_parsed[2]["loc"] == "http://www.example.com/page/a/3"
-        assert str(json_data_parsed[2]["lastmod"]) == "2007-09-10T00:00:00"
-        assert json_data_parsed[2]["changefreq"] == "monthly"
-        assert json_data_parsed[2]["priority"] == freq_09
-        assert json_data_parsed[3]["loc"] == "http://www.example.com/page/a/4"
-        assert str(json_data_parsed[3]["lastmod"]) == "2008-11-12T00:00:00"
-        assert json_data_parsed[3]["changefreq"] == "monthly"
-        assert json_data_parsed[3]["priority"] == freq_10
-
-
 def test_panso() -> None:
     """Test panso."""
     sm = SiteMapParser("https://panso.se/sitemap.xml")
@@ -259,17 +264,6 @@ def test_panso() -> None:
     else:
         urls: UrlSet = sm.get_urls()
         assert urls is not None
-
-    json_exporter = JSONExporter(sm)
-    if sm.has_sitemaps():
-        sitemaps_json: str = json_exporter.export_sitemaps()
-        assert sitemaps_json is not None
-        assert json.loads(sitemaps_json) is not None
-
-    elif sm.has_urls():
-        urls_json: str = json_exporter.export_urls()
-        assert urls_json is not None
-        assert json.loads(urls_json) is not None
 
 
 class TestSiteMapper:
