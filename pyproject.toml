@@ -55,6 +55,7 @@ lint.ignore = [
   "PLR2004",
   "PLR6301",
   "S101",    # asserts allowed in tests...
+  "PT001",
 ]
 
 [tool.pytest.ini_options]

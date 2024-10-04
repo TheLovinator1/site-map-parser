@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from io import BytesIO
+from json import dumps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
+from unittest.mock import MagicMock
 
 import hishel
 import pytest
@@ -13,6 +15,7 @@ from pytest_httpx import HTTPXMock
 
 from sitemap_parser import (
     BaseData,
+    JSONExporter,
     Sitemap,
     SitemapIndex,
     SiteMapParser,
@@ -59,6 +62,25 @@ valid_sitemap_index_xml = """
   </sitemap>
 </sitemapindex>
 """
+sitemap_data: list[Sitemap] = [
+    Sitemap(loc="https://example.com/sitemap1.xml", lastmod=datetime(2023, 1, 1, tzinfo=UTC).isoformat()),
+    Sitemap(loc="https://example.com/sitemap2.xml", lastmod=datetime(2023, 1, 2, tzinfo=UTC).isoformat()),
+]
+
+url_data: list[Url] = [
+    Url(
+        loc="https://example.com/page1",
+        lastmod=datetime(2023, 1, 1, tzinfo=UTC).isoformat(),
+        changefreq="daily",
+        priority=1.0,
+    ),
+    Url(
+        loc="https://example.com/page2",
+        lastmod=datetime(2023, 1, 2, tzinfo=UTC).isoformat(),
+        changefreq="weekly",
+        priority=0.8,
+    ),
+]
 
 
 def test_parse_valid_sitemap() -> None:
@@ -628,3 +650,99 @@ class TestUrlSet:
         amount_of_urls: int = len(self.url_set_element)
         u = UrlSet(self.url_set_element)
         assert len(list(u)) == amount_of_urls
+
+
+# Define sample data for testing
+
+
+@pytest.fixture
+def sitemap_parser_mock() -> MagicMock:
+    """Fixture that mocks the SiteMapParser and its methods.
+
+    Returns:
+        MagicMock: Mocked SiteMapParser object
+    """
+    mock = MagicMock()
+    mock.get_sitemaps.return_value = sitemap_data
+    mock.get_urls.return_value = url_data
+    return mock
+
+
+def test_json_exporter_initialization(sitemap_parser_mock: MagicMock) -> None:
+    """Test that the JSONExporter initializes properly with site map data."""
+    exporter = JSONExporter(sitemap_parser_mock)
+    assert exporter.data == sitemap_parser_mock
+
+
+def test_collate_method_for_sitemaps(sitemap_parser_mock: MagicMock) -> None:
+    """Test the _collate method for Sitemap objects."""
+    exporter = JSONExporter(sitemap_parser_mock)
+    fields: tuple[Literal["loc"], Literal["lastmod"]] = ("loc", "lastmod")
+
+    expected_output: list[dict[str, str]] = [
+        {"loc": "https://example.com/sitemap1.xml", "lastmod": "2023-01-01T00:00:00+00:00"},
+        {"loc": "https://example.com/sitemap2.xml", "lastmod": "2023-01-02T00:00:00+00:00"},
+    ]
+
+    result: list[dict[str, Any]] = exporter._collate(fields, sitemap_data)  # type: ignore[arg-type]  # noqa: SLF001
+    assert result == expected_output
+
+
+def test_collate_method_for_urls(sitemap_parser_mock: MagicMock) -> None:
+    """Test the _collate method for Url objects."""
+    exporter = JSONExporter(sitemap_parser_mock)
+    fields = ("loc", "lastmod", "changefreq", "priority")
+
+    expected_output = [
+        {
+            "loc": "https://example.com/page1",
+            "lastmod": "2023-01-01T00:00:00+00:00",
+            "changefreq": "daily",
+            "priority": 1.0,
+        },
+        {
+            "loc": "https://example.com/page2",
+            "lastmod": "2023-01-02T00:00:00+00:00",
+            "changefreq": "weekly",
+            "priority": 0.8,
+        },
+    ]
+
+    result = exporter._collate(fields, url_data)  # type: ignore[arg-type]  # noqa: SLF001
+    assert result == expected_output
+
+
+def test_export_sitemaps(sitemap_parser_mock: MagicMock) -> None:
+    """Test that export_sitemaps method returns valid JSON for sitemaps."""
+    exporter = JSONExporter(sitemap_parser_mock)
+
+    expected_output = dumps([
+        {"loc": "https://example.com/sitemap1.xml", "lastmod": "2023-01-01T00:00:00+00:00"},
+        {"loc": "https://example.com/sitemap2.xml", "lastmod": "2023-01-02T00:00:00+00:00"},
+    ])
+
+    result = exporter.export_sitemaps()
+    assert result == expected_output
+
+
+def test_export_urls(sitemap_parser_mock: MagicMock) -> None:
+    """Test that export_urls method returns valid JSON for URLs."""
+    exporter = JSONExporter(sitemap_parser_mock)
+
+    expected_output = dumps([
+        {
+            "loc": "https://example.com/page1",
+            "lastmod": "2023-01-01T00:00:00+00:00",
+            "changefreq": "daily",
+            "priority": 1.0,
+        },
+        {
+            "loc": "https://example.com/page2",
+            "lastmod": "2023-01-02T00:00:00+00:00",
+            "changefreq": "weekly",
+            "priority": 0.8,
+        },
+    ])
+
+    result = exporter.export_urls()
+    assert result == expected_output

@@ -29,34 +29,78 @@ pip install git+https://github.com/TheLovinator1/sitemap-parser.git
 
 ## Usage
 
-You can parse sitemaps or sitemap indexes by creating an instance of SiteMapParser and passing the URL of the sitemap or sitemap index.
+The library provides a SiteMapParser class that can be used to parse sitemaps and sitemap indexes. You can pass a URL or raw XML data to the parser to extract the URLs or links to other sitemaps.
 
-### Get sitemaps from a sitemap index
+### Parsing a Sitemap from a URL
 
 ```python
-from sitemap_parser import SitemapIndex, SiteMapParser
+from sitemap_parser import SitemapIndex, SiteMapParser, UrlSet
 
-sitemap_url = "https://www.webhallen.com/sitemap.xml"
-parser = SiteMapParser(sitemap_url)
+url = "https://www.webhallen.com/sitemap.xml" # Sitemap index
+# url = "https://www.webhallen.com/sitemap.infoPages.xml" # Sitemap with URLs
+parser = SiteMapParser(source=url)
 
 if parser.has_sitemaps():
     sitemaps: SitemapIndex = parser.get_sitemaps()
     for sitemap in sitemaps:
-        print(sitemap.loc, sitemap.lastmod)
+        print(sitemap)
+
+elif parser.has_urls():
+    urls: UrlSet = parser.get_urls()
+    for url in urls:
+        print(url)
 ```
 
-### Get URLs from a sitemap
+### Parsing a Raw XML String
 
 ```python
 from sitemap_parser import SiteMapParser, UrlSet
 
-sitemap_url = "https://www.webhallen.com/sitemap.infoPages.xml"
-parser = SiteMapParser(sitemap_url)
+xml_data = """
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://example.com/</loc>
+        <lastmod>2023-09-27</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://example.com/about</loc>
+        <lastmod>2023-09-27</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+</urlset>
+"""
+parser = SiteMapParser(source=xml_data, is_data_string=True)
+urls: UrlSet = parser.get_urls()
+for url in urls:
+    print(url)
+```
+
+### Exporting Sitemap Data to JSON
+
+You can export the parsed sitemap data to a JSON file using the JSONExporter class.
+
+```python
+import json
+from pprint import pprint
+
+from sitemap_parser import JSONExporter, SiteMapParser
+
+parser = SiteMapParser(source="https://www.webhallen.com/sitemap.infoPages.xml")
+exporter = JSONExporter(data=parser)
 
 if parser.has_urls():
-    urls: UrlSet = parser.get_urls()
-    for url in urls:
-        print(url.loc, url.lastmod)
+    json_data: str = exporter.export_urls()
+    json_data = json.loads(json_data)
+    pprint(json_data)
+
+if parser.has_sitemaps():
+    json_data: str = exporter.export_sitemaps()
+    json_data = json.loads(json_data)
+    pprint(json_data)
+
 ```
 
 ## Additional Features

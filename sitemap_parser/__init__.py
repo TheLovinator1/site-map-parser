@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import re
 import typing
+from datetime import datetime
 from io import BytesIO
+from json import dumps
 from pathlib import Path
 from typing import Any, Literal
 from xml.etree.ElementTree import Element
@@ -15,7 +17,6 @@ from lxml import etree
 
 if typing.TYPE_CHECKING:
     from collections.abc import Generator, Iterator
-    from datetime import datetime
     from xml.etree.ElementTree import Element
 
 __all__: list[str] = ["SiteMapParser", "Sitemap", "SitemapIndex", "Url", "UrlSet"]
@@ -629,3 +630,57 @@ class SiteMapParser:
             str
         """
         return str(self._sitemaps if self.has_sitemaps() else self._url_set)
+
+
+class JSONExporter:
+    """Export site map data to JSON format."""
+
+    def __init__(self, data: SiteMapParser) -> None:
+        """Initializes the JSONExporter instance with the site map data."""
+        self.data: SiteMapParser = data
+
+    @staticmethod
+    def _collate(fields: SitemapFields | UrlFields, row_data: SitemapIndex | UrlSet) -> list[dict[str, Any]]:
+        """Collate data from SitemapIndex or UrlSet into a list of dictionaries.
+
+        Args:
+            fields (tuple): A tuple of field names to extract from each Sitemap or Url object.
+            row_data (SitemapIndex | UrlSet): An iterable containing Sitemap or Url objects.
+
+        Returns:
+            list: A list of dictionaries where each dictionary represents a Sitemap or Url object.
+        """
+        dump_data: list[dict[str, Any]] = []
+        for sm in row_data:
+            row: dict[str, Any] = {}
+            for fld in fields:
+                v = getattr(sm, fld)
+                row[fld] = v if not isinstance(v, datetime) else v.isoformat()
+            dump_data.append(row)
+        return dump_data
+
+    def export_sitemaps(self) -> str:
+        """Export site map data to JSON format.
+
+        Returns:
+            JSON data as a string
+        """
+        try:
+            sitemap_fields: SitemapFields = getattr(Sitemap, "fields", ("loc", "lastmod"))  # Default fields
+        except AttributeError:
+            sitemap_fields: SitemapFields = ("loc", "lastmod")  # Default fields
+
+        return dumps(self._collate(sitemap_fields, self.data.get_sitemaps()))
+
+    def export_urls(self) -> str:
+        """Export site map data to JSON format.
+
+        Returns:
+            JSON data as a string
+        """
+        try:
+            url_fields: UrlFields = getattr(Url, "fields", ("loc", "lastmod", "changefreq", "priority"))
+        except AttributeError:
+            url_fields: UrlFields = ("loc", "lastmod", "changefreq", "priority")  # Default fields
+
+        return dumps(self._collate(url_fields, self.data.get_urls()))
