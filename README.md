@@ -123,10 +123,19 @@ Example:
 parser = SiteMapParser(sitemap_url, cache_dir=Path("/path/to/cache"))
 ```
 
-## Error Handling
+## Disabling Logging
 
-**Invalid URLs**: If an invalid URL is provided, a ValueError will be raised.
-**Parsing Errors**: If the XML sitemap or sitemap index is malformed, an XML parsing error will be logged.
+If you want to disable logging, you can adjust the logging level to logging.CRITICAL or higher. This will suppress all log messages below the CRITICAL level.
+
+Here's an example of how to do this:
+
+```python
+import logging
+
+# Set the logging level to CRITICAL to disable logging
+logging.getLogger("sitemap_parser").setLevel(logging.CRITICAL)
+
+```
 
 ## Contributing
 

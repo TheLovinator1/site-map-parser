@@ -9,11 +9,10 @@ packages = [{ include = "sitemap_parser", from = "." }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
+hishel = "*"
 httpx = { extras = ["http2"], version = "*" }
-loguru = "*"
 lxml = "*"
 python-dateutil = "*"
-hishel = "^0.0.32"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "*"

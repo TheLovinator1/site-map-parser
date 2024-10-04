@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import re
 import typing
 from datetime import datetime
@@ -12,15 +13,16 @@ from xml.etree.ElementTree import Element
 import hishel
 import httpx
 from dateutil import parser
-from loguru import logger
 from lxml import etree
 
 if typing.TYPE_CHECKING:
     from collections.abc import Generator, Iterator
     from xml.etree.ElementTree import Element
 
-__all__: list[str] = ["SiteMapParser", "Sitemap", "SitemapIndex", "Url", "UrlSet"]
+__all__: list[str] = ["JSONExporter", "SiteMapParser", "Sitemap", "SitemapIndex", "Url", "UrlSet"]
 
+logging.basicConfig(level=logging.DEBUG)
+logger: logging.Logger = logging.getLogger("sitemap_parser")
 
 Freqs = Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"]
 ValidFreqs = tuple[
@@ -106,30 +108,30 @@ def download_uri_data(uri: str, *, hishel_client: hishel.CacheClient | None = No
     """Download the data from the uri.
 
     Args:
-        uri: The uri to download. Expected format: HTTP/HTTPS URL.
-        hishel_client: The Hishel client to use for downloading the data. If None, the data will be downloaded without caching.
-        should_cache: Whether to cache the request with Hishel (https://hishel.com/) or not.
+        uri(str): The uri to download. Expected format: HTTP/HTTPS URL.
+        hishel_client(hishel.CacheClient): The Hishel client to use for downloading the data. If None, the data will be downloaded without caching.
+        should_cache(bool): Whether to cache the request with Hishel (https://hishel.com/) or not.
 
     Returns:
-        The data from the uri
+        bytes: The data from the uri
     """  # noqa: E501
     if should_cache and hishel_client is not None:
         with hishel_client as client:
-            logger.info("Downloading with cache from {}", uri)
+            logger.info("Downloading with cache from %s", uri)
             r: httpx.Response = client.get(uri)
     else:
         with httpx.Client(timeout=10, http2=True, follow_redirects=True) as client:
-            logger.info("Downloading without cache from {}", uri)
+            logger.info("Downloading without cache from %s", uri)
             r: httpx.Response = client.get(uri)
 
     log_cache_usage(request=r)
 
     r.raise_for_status()
-    logger.debug("Downloaded data from {}", uri)
+    logger.debug("Downloaded data from %s", uri)
 
     max_log_length = 100
     truncated_content: bytes = r.content[:max_log_length] + b"..." if len(r.content) > max_log_length else r.content
-    logger.debug("Downloaded data: {}", truncated_content)
+    logger.debug("Downloaded data: %s", truncated_content)
 
     return r.content
 
@@ -149,33 +151,33 @@ def bytes_to_element(data: bytes) -> Element:
     """Convert the data to an lxml element.
 
     Args:
-        data: The data to convert
+        data(bytes): The data to convert
 
     Raises:
         etree.XMLSyntaxError: Syntax error while parsing an XML document
 
     Returns:
-        The lxml element as an Element from lxml.etree
+        Element: The lxml element as an Element from lxml.etree
     """
     content = BytesIO(data)
     try:
         utf8_parser = etree.XMLParser(encoding="utf-8")
         downloaded_xml = etree.parse(content, parser=utf8_parser)
-        logger.debug(f"Parsed XML: {downloaded_xml}")
+        logger.debug("Parsed XML: %s", downloaded_xml)
         root = downloaded_xml.getroot()
 
-    except etree.XMLSyntaxError as err:
-        logger.error(f"Error parsing XML: {err}")
+    except etree.XMLSyntaxError:
+        logger.exception("Error parsing XML")
         raise
 
-    logger.debug(f"Parsed XML root element: {root}")
+    logger.debug("Parsed XML root element: %s", root)
     return root
 
 
 class Sitemap(BaseData):
     """Representation of the <sitemap> element."""
 
-    fields = "loc", "lastmod"
+    fields: tuple[Literal["loc"], Literal["lastmod"]] = "loc", "lastmod"
 
     def __init__(self, loc: str, lastmod: str | None = None) -> None:
         """Representation of the <sitemap> element.
@@ -306,14 +308,7 @@ class Url(BaseData):
 
 
 class UrlSet:
-    """Class to represent a <urlset> element.
-
-    Returns:
-        UrlSet instance
-
-    Yields:
-        Url instances
-    """
+    """Class to represent a <urlset> element."""
 
     allowed_fields: typing.ClassVar[tuple[str, ...]] = (
         "loc",
@@ -408,7 +403,7 @@ class SitemapIndex:
         Yields:
             Sitemap instance
         """
-        logger.debug("Generating sitemaps from {}", index_element)
+        logger.debug("Generating sitemaps from %s", index_element)
 
         # handle child elements, <sitemap>
         sitemaps: list[Element] = index_element.findall("./*")
@@ -522,10 +517,10 @@ class SiteMapParser:
         """Determine if the element is a sitemapindex.
 
         Args:
-            element: The element to check
+            element(Element): The element to check
 
         Returns:
-            Boolean
+            bool: True if the element is a sitemapindex, False otherwise
         """
         return bool(len(element.xpath("/*[local-name()='sitemapindex']")))  # type: ignore[attr-defined]
 
@@ -537,7 +532,7 @@ class SiteMapParser:
             element: The element to check
 
         Returns:
-            Boolean
+            bool: True if the element is a <urlset>, False otherwise
         """
         return bool(len(element.xpath("/*[local-name()='urlset']")))  # type: ignore[attr-defined]
 
@@ -547,14 +542,11 @@ class SiteMapParser:
         Can check if 'has_sitemaps()' returns True to determine
         if this should be used without calling it
 
-        Args:
-            self: The SiteMapParser instance
-
         Raises:
             KeyError: If the root is not a <sitemapindex>
 
         Returns:
-            SitemapIndex
+            SitemapIndex: The sitemaps as a SitemapIndex instance
         """
         if not self.has_sitemaps():
             error_msg = "Method called when root is not a <sitemapindex>"
@@ -569,9 +561,6 @@ class SiteMapParser:
 
     def get_urls(self) -> UrlSet:
         """Retrieve the urls.
-
-        Args:
-            self: The SiteMapParser instance
 
         Raises:
             KeyError: If the root is not a <urlset>
@@ -601,8 +590,6 @@ class SiteMapParser:
 
         A sitemap can contain other sitemaps. For example: <https://www.webhallen.com/sitemap.xml>
 
-        Args:
-            self: The SiteMapParser instance
 
         Returns:
             Boolean
@@ -612,9 +599,6 @@ class SiteMapParser:
     def has_urls(self) -> bool:
         """Determine if the URL's data contained urls.
 
-        Args:
-            self: The SiteMapParser instance
-
         Returns:
             Boolean
         """
@@ -622,9 +606,6 @@ class SiteMapParser:
 
     def __str__(self) -> str:
         """String representation of the SiteMapParser instance.
-
-        Args:
-            self: The SiteMapParser instance
 
         Returns:
             str
@@ -644,7 +625,7 @@ class JSONExporter:
         """Collate data from SitemapIndex or UrlSet into a list of dictionaries.
 
         Args:
-            fields (tuple): A tuple of field names to extract from each Sitemap or Url object.
+            fields (SitemapFields | UrlFields): The fields to include in the output.
             row_data (SitemapIndex | UrlSet): An iterable containing Sitemap or Url objects.
 
         Returns:
@@ -663,7 +644,7 @@ class JSONExporter:
         """Export site map data to JSON format.
 
         Returns:
-            JSON data as a string
+            str: JSON data as a string
         """
         try:
             sitemap_fields: SitemapFields = getattr(Sitemap, "fields", ("loc", "lastmod"))  # Default fields
@@ -676,7 +657,7 @@ class JSONExporter:
         """Export site map data to JSON format.
 
         Returns:
-            JSON data as a string
+            str: JSON data as a string
         """
         try:
             url_fields: UrlFields = getattr(Url, "fields", ("loc", "lastmod", "changefreq", "priority"))
