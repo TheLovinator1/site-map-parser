@@ -96,7 +96,7 @@ class BaseData:
             value = str(value)
 
         # Check if the URL is valid
-        if not re.match("http[s]?://", value):
+        if not re.match(r"http[s]?://", value):
             msg: str = f"{value} is not a valid URL"
             raise ValueError(msg)
 
