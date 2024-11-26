@@ -17,6 +17,6 @@ jobs:
       - run: source .venv/bin/activate
       - run: pip install git+https://github.com/TheLovinator1/sitemap-parser.git
       - run: curl -sSL https://raw.githubusercontent.com/TheLovinator1/sitemap-parser/master/example.py -o example.py
-      - run: python3 example.py > output.txt
+      - run: python3 example.py | tee output.txt
       - run: grep -q "Done." output.txt && echo "Success!" || (cat output.txt && echo "Failed to find expected output." && exit 1)
       - run: grep -q "https://sverigesradio.se/artikel/" output.txt && echo "Success!" || (cat output.txt && echo "Failed to find expected URL." && exit 1)
