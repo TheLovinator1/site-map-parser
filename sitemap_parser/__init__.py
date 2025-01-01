@@ -21,7 +21,6 @@ if typing.TYPE_CHECKING:
 
 __all__: list[str] = ["JSONExporter", "SiteMapParser", "Sitemap", "SitemapIndex", "Url", "UrlSet"]
 
-logging.basicConfig(level=logging.DEBUG)
 logger: logging.Logger = logging.getLogger("sitemap_parser")
 
 Freqs = Literal["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"]
@@ -503,10 +502,8 @@ class SiteMapParser:
         self.is_sitemap_index = self._is_sitemap_index_element(root_element)
 
         if self.is_sitemap_index:
-            logger.info("Root element is sitemap index")
             self._sitemaps = SitemapIndex(index_element=root_element)
         else:
-            logger.info("Root element is url set")
             self._url_set = UrlSet(urlset_element=root_element)
 
     @staticmethod
