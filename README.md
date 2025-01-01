@@ -20,11 +20,12 @@ This is a fork of [Dave O'Connor](https://github.com/daveoconnor)'s [site-map-pa
 
 ## Installation
 
-You can install the required dependencies via poetry or pip.
+You can install the required dependencies with your preferred package manager. This library requires Python 3.9 or higher.
 
 ```sh
 poetry add git+https://github.com/TheLovinator1/sitemap-parser.git
 pip install git+https://github.com/TheLovinator1/sitemap-parser.git
+uv add git+https://github.com/TheLovinator1/sitemap-parser.git
 ```
 
 ## Usage

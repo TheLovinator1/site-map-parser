@@ -24,12 +24,12 @@ repos:
         exclude_types:
           - "html"
 
-  # Run Pyupgrade on all Python files. This will upgrade the code to Python 3.12.
+  # Run Pyupgrade on all Python files. This will upgrade the code to Python 3.9.
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.19.1
     hooks:
       - id: pyupgrade
-        args: ["--py312-plus"]
+        args: ["--py39-plus"]
 
   # An extremely fast Python linter and formatter.
   - repo: https://github.com/astral-sh/ruff-pre-commit

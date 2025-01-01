@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import typing
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from io import BytesIO
 from json import dumps
 from pathlib import Path
@@ -64,20 +64,20 @@ valid_sitemap_index_xml = """
 </sitemapindex>
 """
 sitemap_data: list[Sitemap] = [
-    Sitemap(loc="https://example.com/sitemap1.xml", lastmod=datetime(2023, 1, 1, tzinfo=UTC).isoformat()),
-    Sitemap(loc="https://example.com/sitemap2.xml", lastmod=datetime(2023, 1, 2, tzinfo=UTC).isoformat()),
+    Sitemap(loc="https://example.com/sitemap1.xml", lastmod=datetime(2023, 1, 1, tzinfo=timezone.utc).isoformat()),
+    Sitemap(loc="https://example.com/sitemap2.xml", lastmod=datetime(2023, 1, 2, tzinfo=timezone.utc).isoformat()),
 ]
 
 url_data: list[Url] = [
     Url(
         loc="https://example.com/page1",
-        lastmod=datetime(2023, 1, 1, tzinfo=UTC).isoformat(),
+        lastmod=datetime(2023, 1, 1, tzinfo=timezone.utc).isoformat(),
         changefreq="daily",
         priority=1.0,
     ),
     Url(
         loc="https://example.com/page2",
-        lastmod=datetime(2023, 1, 2, tzinfo=UTC).isoformat(),
+        lastmod=datetime(2023, 1, 2, tzinfo=timezone.utc).isoformat(),
         changefreq="weekly",
         priority=0.8,
     ),
@@ -161,9 +161,9 @@ def test_lastmod_value_correct() -> None:
     s2 = BaseData()
     s2.lastmod = "2019-11-11T00:00:00+00:00"
     assert type(s1.lastmod) is datetime
-    assert s1.lastmod == datetime(2019, 12, 1, 1, 33, 35, tzinfo=UTC)
+    assert s1.lastmod == datetime(2019, 12, 1, 1, 33, 35, tzinfo=timezone.utc)
     assert type(s2.lastmod) is datetime
-    assert s2.lastmod == datetime(2019, 11, 11, 0, 0, 0, tzinfo=UTC)
+    assert s2.lastmod == datetime(2019, 11, 11, 0, 0, 0, tzinfo=timezone.utc)
 
 
 def test_lastmod_value_incorrect() -> None:

@@ -1,10 +1,17 @@
 {
     "cSpell.words": [
+        "asctime",
         "chartboost",
         "dateutil",
+        "etree",
         "Freqs",
         "hishel",
+        "httpx",
         "isoparse",
-        "pprint"
+        "isort",
+        "levelname",
+        "lxml",
+        "pprint",
+        "pydocstyle"
     ]
 }

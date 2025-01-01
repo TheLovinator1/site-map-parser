@@ -1,20 +1,14 @@
 [project]
 name = "sitemap-parser"
-version = "1.0.0"
+version = "1.1.0"
 description = "This Python library is designed to scrape sitemaps from websites, providing a simple and efficient way to gather information about the structure of a website."
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-  "discord-webhook",
-  "hishel",
-  "httpx[http2]",
-  "lxml",
-  "python-dateutil",
-]
+requires-python = ">=3.9"
+dependencies = ["hishel", "httpx[http2]", "lxml", "python-dateutil"]
 
 [tool.poetry]
 name = "sitemap-parser"
-version = "1.0.0"
+version = "1.1.0"
 description = "This Python library is designed to scrape sitemaps from websites, providing a simple and efficient way to gather information about the structure of a website."
 authors = ["Joakim Hellsén <tlovinator@gmail.com>"]
 readme = "README.md"
@@ -22,27 +16,28 @@ license = "MIT"
 packages = [{include = "sitemap_parser", from = "."}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.9"
 hishel = "*"
 httpx = {extras = ["http2"], version = "*"}
 lxml = "*"
 python-dateutil = "*"
 
 [tool.poetry.group.dev.dependencies]
+lxml-stubs = {version = "*", optional = true}
+nox = {version = "*"}
 pre-commit = "*"
 pytest = "*"
 pytest-httpx = "*"
-lxml-stubs = {version = "*", optional = true}
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
 [dependency-groups]
-dev = ["lxml-stubs", "pre-commit", "pytest", "pytest-httpx"]
+dev = ["lxml-stubs", "nox", "pre-commit", "pytest", "pytest-httpx"]
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py39"
 fix = true
 unsafe-fixes = true
 preview = true
