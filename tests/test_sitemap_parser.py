@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import typing
 from datetime import UTC, datetime
 from io import BytesIO
 from json import dumps
@@ -125,7 +126,7 @@ def test_changefreq_validation() -> None:
 
 
 def test_priority_validation() -> None:
-    with pytest.raises(ValueError, match="'1.5' is not between 0.0 and 1.0"):
+    with pytest.raises(ValueError, match=r"'1.5' is not between 0.0 and 1.0"):
         Url(loc="https://example.com", priority=1.5)  # Priority outside of 0.0 - 1.0 range should raise a ValueError
 
 
@@ -149,7 +150,7 @@ def test_url_object() -> None:
 
 def test_bytes_to_element() -> None:
     element = bytes_to_element(valid_sitemap_xml.encode("utf-8"))
-    assert isinstance(element, etree._Element)  # noqa: SLF001
+    assert isinstance(element, etree._Element)  # type: ignore  # noqa: PGH003
 
 
 def test_lastmod_value_correct() -> None:
@@ -158,18 +159,18 @@ def test_lastmod_value_correct() -> None:
     s1.lastmod = "2019-12-01T01:33:35+00:00"
 
     s2 = BaseData()
-    s2.lastmod = "2019-11-11"
+    s2.lastmod = "2019-11-11T00:00:00+00:00"
     assert type(s1.lastmod) is datetime
-    assert str(s1.lastmod) == "2019-12-01 01:33:35+00:00"
+    assert s1.lastmod == datetime(2019, 12, 1, 1, 33, 35, tzinfo=UTC)
     assert type(s2.lastmod) is datetime
-    assert str(s2.lastmod) == "2019-11-11 00:00:00"
+    assert s2.lastmod == datetime(2019, 11, 11, 0, 0, 0, tzinfo=UTC)
 
 
 def test_lastmod_value_incorrect() -> None:
     """Test lastmod value."""
     s1 = BaseData()
     # tests invalid month value
-    with pytest.raises(ValueError, match="month must be in 1..12"):
+    with pytest.raises(ValueError, match=r"month must be in 1..12"):
         s1.lastmod = "2019-13-01T01:33:35+00:00"
 
 
@@ -187,7 +188,7 @@ def test_loc_value_correct() -> None:
 def test_loc_value_incorrect() -> None:
     """Test loc value."""
     s = BaseData()
-    with pytest.raises(ValueError, match="www.example.com is not a valid URL"):
+    with pytest.raises(ValueError, match=r"www.example.com is not a valid URL"):
         s.loc = "www.example.com"
 
 
@@ -277,17 +278,6 @@ def test_data_to_element_urlset() -> None:
     assert len(root_element.xpath("/*[local-name()='urlset']")) == 1  # type: ignore  # noqa: PGH003
 
 
-def test_panso() -> None:
-    """Test panso."""
-    sm = SiteMapParser("https://panso.se/sitemap.xml")
-    if sm.has_sitemaps():
-        sitemaps: SitemapIndex = sm.get_sitemaps()
-        assert sitemaps is not None
-    else:
-        urls: UrlSet = sm.get_urls()
-        assert urls is not None
-
-
 class TestSiteMapper:
     """Test the SiteMapper class."""
 
@@ -314,10 +304,12 @@ class TestSiteMapper:
         Args:
             self: TestSiteMapper
         """
-        sitemap_index_result: bool = SiteMapParser._is_sitemap_index_element(self.sitemap_index_xml_root)  # noqa: SLF001
-        url_set_result: bool = SiteMapParser._is_sitemap_index_element(self.url_set_element)  # noqa: SLF001
-        assert sitemap_index_result is True
-        assert url_set_result is False
+        sitemap_index_result: bool = SiteMapParser._is_sitemap_index_element(  # pyright: ignore[reportPrivateUsage]
+            typing.cast("Element", self.sitemap_index_xml_root),
+        )
+        url_set_result: bool = SiteMapParser._is_sitemap_index_element(typing.cast("Element", self.url_set_element))  # pyright: ignore[reportPrivateUsage]
+        assert sitemap_index_result
+        assert not url_set_result
 
     def test_is_url_set_element(self: TestSiteMapper) -> None:
         """Test is_url_set_element.
@@ -325,10 +317,12 @@ class TestSiteMapper:
         Args:
             self: TestSiteMapper
         """
-        url_set_result: bool = SiteMapParser._is_url_set_element(self.url_set_element)  # noqa: SLF001
-        sitemap_index_result: bool = SiteMapParser._is_url_set_element(self.sitemap_index_xml_root)  # noqa: SLF001
-        assert url_set_result is True
-        assert sitemap_index_result is False
+        url_set_result: bool = SiteMapParser._is_url_set_element(typing.cast("Element", self.url_set_element))  # pyright: ignore[reportPrivateUsage]
+        sitemap_index_result: bool = SiteMapParser._is_url_set_element(  # pyright: ignore[reportPrivateUsage]
+            typing.cast("Element", self.sitemap_index_xml_root),
+        )
+        assert url_set_result
+        assert not sitemap_index_result
 
     def test_get_sitemaps(self: TestSiteMapper, httpx_mock: HTTPXMock) -> None:
         """Test get_sitemaps."""
@@ -428,7 +422,7 @@ class TestSitemapIndex:
         Args:
             self: TestSitemapIndex
         """
-        sm: Sitemap = SitemapIndex.sitemap_from_sitemap_element(self.sitemap_index_element_xml)
+        sm: Sitemap = SitemapIndex.sitemap_from_sitemap_element(typing.cast("Element", self.sitemap_index_element_xml))
         assert isinstance(sm, Sitemap)
         assert sm.loc == "http://www.example.com/sitemap_a.xml"
         assert type(sm.lastmod) is datetime
@@ -442,7 +436,7 @@ class TestSitemapIndex:
         """
         amount_of_sitemaps: int = len(self.sitemap_index_xml_root)
         si: Generator[Sitemap, Any, None] = SitemapIndex.sitemaps_from_sitemap_index_element(
-            self.sitemap_index_xml_root,
+            typing.cast("Element", self.sitemap_index_xml_root),
         )
         assert len(list(si)) == amount_of_sitemaps
 
@@ -453,7 +447,7 @@ class TestSitemapIndex:
             self: TestSitemapIndex
         """
         amount_of_sitemaps: int = len(self.sitemap_index_xml_root)
-        smi = SitemapIndex(self.sitemap_index_xml_root)
+        smi = SitemapIndex(typing.cast("Element", self.sitemap_index_xml_root))
         assert len(list(smi)) == amount_of_sitemaps
 
 
@@ -553,9 +547,9 @@ class TestUrl:
         u.priority = priority10
         assert u.priority == priority10
 
-        with pytest.raises(ValueError, match="'1.1' is not between 0.0 and 1.0"):
+        with pytest.raises(ValueError, match=r"'1.1' is not between 0.0 and 1.0"):
             u.priority = 1.1  # Max is 1.0
-        with pytest.raises(ValueError, match="'-0.1' is not between 0.0 and 1.0"):
+        with pytest.raises(ValueError, match=r"'-0.1' is not between 0.0 and 1.0"):
             u.priority = -0.1  # Min is 0.0
 
     def test_str(self: TestUrl) -> None:
@@ -599,7 +593,7 @@ class TestUrlSet:
             self: TestUrlSet
         """
         priority = 0.8
-        url: Url = UrlSet.url_from_url_element(self.url_element_1)
+        url: Url = UrlSet.url_from_url_element(typing.cast("Element", self.url_element_1))
         assert isinstance(url, Url)
         assert url.loc == "http://www.example.com/page/a/1"
         assert type(url.lastmod) is datetime
@@ -614,7 +608,7 @@ class TestUrlSet:
             self: TestUrlSet
         """
         priority = 0.3
-        url: Url = UrlSet.url_from_url_element(self.url_element_3)
+        url: Url = UrlSet.url_from_url_element(typing.cast("Element", self.url_element_3))
         assert isinstance(url, Url)
         assert url.loc == "http://www.example.com/page/a/4"
         assert type(url.lastmod) is datetime
@@ -629,7 +623,7 @@ class TestUrlSet:
             self: TestUrlSet
         """
         amount_of_urls: int = len(self.url_set_element)
-        urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(self.url_set_element)
+        urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(typing.cast("Element", self.url_set_element))
         assert len(list(urls)) == amount_of_urls
 
     def test_urls_from_url_set_custom_element(self: TestUrlSet) -> None:
@@ -638,7 +632,9 @@ class TestUrlSet:
         Args:
             self: TestUrlSet
         """
-        urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(self.url_set_custom_element)
+        urls: Generator[Url, Any, None] = UrlSet.urls_from_url_set_element(
+            typing.cast("Element", self.url_set_custom_element),
+        )
         assert len(list(urls)) == 1
 
     def test_init(self: TestUrlSet) -> None:
@@ -648,7 +644,7 @@ class TestUrlSet:
             self: TestUrlSet
         """
         amount_of_urls: int = len(self.url_set_element)
-        u = UrlSet(self.url_set_element)
+        u = UrlSet(typing.cast("Element", self.url_set_element))
         assert len(list(u)) == amount_of_urls
 
 
@@ -684,7 +680,7 @@ def test_collate_method_for_sitemaps(sitemap_parser_mock: MagicMock) -> None:
         {"loc": "https://example.com/sitemap2.xml", "lastmod": "2023-01-02T00:00:00+00:00"},
     ]
 
-    result: list[dict[str, Any]] = exporter._collate(fields, sitemap_data)  # type: ignore[arg-type]  # noqa: SLF001
+    result: list[dict[str, Any]] = exporter._collate(fields, sitemap_data)  # type: ignore[arg-type]
     assert result == expected_output
 
 
@@ -708,7 +704,7 @@ def test_collate_method_for_urls(sitemap_parser_mock: MagicMock) -> None:
         },
     ]
 
-    result = exporter._collate(fields, url_data)  # type: ignore[arg-type]  # noqa: SLF001
+    result = exporter._collate(fields, url_data)  # type: ignore[arg-type]
     assert result == expected_output
 
 

@@ -162,9 +162,9 @@ def bytes_to_element(data: bytes) -> Element:
     content = BytesIO(data)
     try:
         utf8_parser = etree.XMLParser(encoding="utf-8")
-        downloaded_xml = etree.parse(content, parser=utf8_parser)
+        downloaded_xml: etree._ElementTree = etree.parse(content, parser=utf8_parser)  # type: ignore[attr-defined]
         logger.debug("Parsed XML: %s", downloaded_xml)
-        root = downloaded_xml.getroot()
+        root: Element | Any = downloaded_xml.getroot()
 
     except etree.XMLSyntaxError:
         logger.exception("Error parsing XML")
@@ -232,7 +232,7 @@ class Url(BaseData):
         loc: str | None,
         lastmod: str | None = None,
         changefreq: str | None = None,
-        priority: float | None = None,
+        priority: str | float | None = None,
     ) -> None:
         """Creates a Url instance.
 
@@ -245,7 +245,7 @@ class Url(BaseData):
         self.loc = loc
         self.lastmod = lastmod
         self.changefreq = changefreq
-        self.priority = priority
+        self.priority = float(priority) if priority is not None else None
 
     @property
     def changefreq(self: Url) -> Freqs | None:
@@ -332,7 +332,7 @@ class UrlSet:
             Url instance
         """
         logger.debug(f"urls_from_url_element {url_element}")
-        url_data: dict = {}
+        url_data: dict[str, str | None] = {}
         for ele in url_element:
             name = ele.xpath("local-name()")  # type: ignore[attr-defined]
             if name in UrlSet.allowed_fields:
@@ -383,10 +383,10 @@ class SitemapIndex:
         Returns:
             Sitemap instance
         """
-        sitemap_data: dict = {}
+        sitemap_data: dict[str, str] = {}
         for ele in sitemap_element:
             name = ele.xpath("local-name()")  # type: ignore[attr-defined]
-            value = ele.text if ele.text is not None else ""  # use the text attribute directly
+            value: str = ele.text if ele.text is not None else ""  # use the text attribute directly
             sitemap_data[name] = value
 
         msg = "Returning sitemap object with data: {}"
@@ -574,9 +574,7 @@ class SiteMapParser:
 
             # Check if the root is a <sitemapindex>
             if self.is_sitemap_index:
-                error_msg = "Method called when root is a <sitemapindex>"
-                error_msg += " Use 'get_sitemaps()' instead"
-
+                error_msg = "Method called when root is a <sitemapindex>. Use 'get_sitemaps()' instead"
             raise KeyError(error_msg)
 
         if self._url_set is None:
@@ -636,7 +634,7 @@ class JSONExporter:
             row: dict[str, Any] = {}
             for fld in fields:
                 v = getattr(sm, fld)
-                row[fld] = v if not isinstance(v, datetime) else v.isoformat()
+                row[fld] = v.isoformat() if isinstance(v, datetime) else v
             dump_data.append(row)
         return dump_data
 
