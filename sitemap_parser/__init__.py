@@ -89,11 +89,13 @@ class BaseData:
             value (str | None): The URL to set.
 
         Raises:
+            TypeError: If the value is not a string.
             ValueError: If the value is not a valid URL.
         """
         # Only allow strings
         if not isinstance(value, str):
-            value = str(value)
+            msg = "URL must be a string"
+            raise TypeError(msg)
 
         # Check if the URL is valid
         if not re.match(r"http[s]?://", value):
