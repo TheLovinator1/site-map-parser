@@ -92,17 +92,14 @@ class BaseData:
             TypeError: If the value is not a string.
             ValueError: If the value is not a valid URL.
         """
-        # Only allow strings
         if not isinstance(value, str):
             msg = "URL must be a string"
             raise TypeError(msg)
 
-        # Check if the URL is valid
         if not re.match(r"http[s]?://", value):
             msg: str = f"{value} is not a valid URL"
             raise ValueError(msg)
 
-        # Set the value
         self._loc = value
 
 
@@ -111,20 +108,21 @@ def download_uri_data(uri: str, *, hishel_client: hishel.CacheClient | None = No
 
     Args:
         uri(str): The uri to download. Expected format: HTTP/HTTPS URL.
-        hishel_client(hishel.CacheClient): The Hishel client to use for downloading the data. If None, the data will be downloaded without caching.
+        hishel_client(hishel.CacheClient): The Hishel client to use for downloading the data.
+            If None, the data will be downloaded without caching.
         should_cache(bool): Whether to cache the request with Hishel (https://hishel.com/) or not.
 
     Returns:
         bytes: The data from the uri
-    """  # noqa: E501
-    if should_cache and hishel_client is not None:
-        with hishel_client as client:
-            logger.info("Downloading with cache from %s", uri)
-            r: httpx.Response = client.get(uri)
-    else:
-        with httpx.Client(timeout=10, http2=True, follow_redirects=True) as client:
-            logger.info("Downloading without cache from %s", uri)
-            r: httpx.Response = client.get(uri)
+    """
+    client: hishel.CacheClient | httpx.Client = (
+        hishel_client
+        if should_cache and hishel_client is not None
+        else httpx.Client(timeout=10, http2=True, follow_redirects=True)
+    )
+    with client:
+        logger.info("Downloading from %s", uri)
+        r: httpx.Response = client.get(uri)
 
     log_cache_usage(request=r)
 
@@ -144,7 +142,7 @@ def log_cache_usage(request: httpx.Response) -> None:
     Args:
         request (httpx.Response): The response object from the download.
     """
-    from_cache: Any | bool = request.extensions.get("from_cache", False)
+    from_cache: bool = request.extensions.get("from_cache", False)
     if from_cache:
         logger.info("%s was retrieved from cache", request.url)
 
@@ -163,8 +161,7 @@ def bytes_to_element(data: bytes) -> Element:
     """
     content = BytesIO(data)
     try:
-        utf8_parser = etree.XMLParser(encoding="utf-8")
-        downloaded_xml: etree._ElementTree = etree.parse(content, parser=utf8_parser)  # type: ignore[attr-defined]
+        downloaded_xml = etree.parse(content)
         logger.debug("Parsed XML: %s", downloaded_xml)
         root: Element | Any = downloaded_xml.getroot()
 
@@ -265,7 +262,7 @@ class Url(BaseData):
         Raises:
             ValueError: Value is not an allowed value
         """
-        if frequency is not None and frequency not in list(Url.valid_freqs):
+        if frequency is not None and frequency not in Url.valid_freqs:
             msg: str = f"'{frequency}' is not an allowed value: {Url.valid_freqs}"
             raise ValueError(msg)
         self._changefreq: Freqs | None = frequency
@@ -282,8 +279,6 @@ class Url(BaseData):
     @priority.setter
     def priority(self: Url, priority: float | None) -> None:
         if priority is not None:
-            priority = float(priority)
-
             min_value = 0.0
             max_value = 1.0
             if priority < min_value or priority > max_value:
@@ -485,8 +480,8 @@ class SiteMapParser:
         Returns:
             The Hishel client
         """
-        controller: hishel.Controller = SiteMapParser.get_hishel_controller()
-        storage: hishel.FileStorage = SiteMapParser.get_hishel_storage(self)
+        controller: hishel.Controller = self.get_hishel_controller()
+        storage: hishel.FileStorage = self.get_hishel_storage()
         return hishel.CacheClient(controller=controller, storage=storage, timeout=10, http2=True, follow_redirects=True)
 
     def _initialize(self) -> None:
@@ -524,7 +519,10 @@ class SiteMapParser:
         Returns:
             bool: True if the element is a sitemapindex, False otherwise
         """
-        return bool(len(element.xpath("/*[local-name()='sitemapindex']")))  # type: ignore[attr-defined]
+        namespaces: dict[str, str] = {"ns": element.tag.split("}")[0].strip("{")}
+        logger.debug(f"{namespaces['ns']=}")
+
+        return bool(len(element.xpath("/ns:sitemapindex", namespaces=namespaces)))  # type: ignore[attr-defined]
 
     @staticmethod
     def _is_url_set_element(element: Element) -> bool:
@@ -536,7 +534,10 @@ class SiteMapParser:
         Returns:
             bool: True if the element is a <urlset>, False otherwise
         """
-        return bool(len(element.xpath("/*[local-name()='urlset']")))  # type: ignore[attr-defined]
+        namespaces: dict[str, str] = {"ns": element.tag.split("}")[0].strip("{")}
+        logger.debug(f"{namespaces['ns']=}")
+
+        return bool(len(element.xpath("/ns:urlset", namespaces=namespaces)))  # type: ignore[attr-defined]
 
     def get_sitemaps(self) -> SitemapIndex:
         """Retrieve the sitemaps.
